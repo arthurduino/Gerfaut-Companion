@@ -21,7 +21,15 @@ echo "📝 Mise à jour de la version dans gerfaut-companion.php..."
 sed -i "s/Version: .*/Version: $VERSION/" gerfaut-companion.php
 sed -i "s/define('GERFAUT_COMPANION_VERSION', '.*');/define('GERFAUT_COMPANION_VERSION', '$VERSION');/" gerfaut-companion.php
 
-# 2. Créer le ZIP sans le token
+# 2. Commit et push
+echo "💾 Commit des changements..."
+git add .
+git commit -m "Release v$VERSION - $DESCRIPTION" || echo "Rien à committer"
+git tag -a "v$VERSION" -m "$DESCRIPTION"
+git push origin main
+git push origin "v$VERSION"
+
+# 3. Créer le ZIP APRÈS le commit
 echo "📦 Création du ZIP..."
 cd ..
 zip -r gerfaut-companion.zip gerfaut-companion-plugin/ \
@@ -34,14 +42,6 @@ zip -r gerfaut-companion.zip gerfaut-companion-plugin/ \
     -q
 
 cd gerfaut-companion-plugin
-
-# 3. Commit et push
-echo "💾 Commit des changements..."
-git add .
-git commit -m "Release v$VERSION - $DESCRIPTION" || echo "Rien à committer"
-git tag -a "v$VERSION" -m "$DESCRIPTION"
-git push origin main
-git push origin "v$VERSION"
 
 # 4. Créer la release GitHub avec le ZIP
 echo "🚀 Création de la release GitHub..."
