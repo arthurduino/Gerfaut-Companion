@@ -1,0 +1,11 @@
+{
+  "name": "gerfaut/companion-plugin",
+  "description": "Extension WooCommerce compagnon pour afficher des informations sur le dashboard et les commandes",
+  "type": "wordpress-plugin",
+  "require": {
+    "yahnis-elsts/plugin-update-checker": "^5.0"
+  },
+  "autoload": {
+    "classmap": ["includes/"]
+  }
+}

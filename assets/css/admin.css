@@ -1,0 +1,167 @@
+/**
+ * Gerfaut Companion - Admin Styles
+ */
+
+/* Dashboard Widget Styles */
+.gerfaut-dashboard-widget {
+    padding: 12px;
+}
+
+.gerfaut-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.gerfaut-stat-box {
+    background: #f0f6fc;
+    border: 1px solid #c3dafe;
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+}
+
+.gerfaut-stat-box h3 {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+    color: #2271b1;
+    font-weight: 600;
+}
+
+.gerfaut-stat-box p {
+    margin: 0;
+    font-size: 13px;
+    color: #50575e;
+}
+
+.gerfaut-recent-orders,
+.gerfaut-pending-orders {
+    margin-top: 20px;
+}
+
+.gerfaut-recent-orders h4,
+.gerfaut-pending-orders h4 {
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dcdcde;
+    color: #1d2327;
+    font-size: 14px;
+}
+
+.gerfaut-order-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gerfaut-order-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 13px;
+}
+
+.gerfaut-order-list li:last-child {
+    border-bottom: none;
+}
+
+.gerfaut-order-list a {
+    text-decoration: none;
+    color: #2271b1;
+}
+
+.gerfaut-order-list a:hover {
+    color: #135e96;
+}
+
+.gerfaut-order-list .order-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.gerfaut-order-list .order-status.status-completed {
+    background: #c6e1c6;
+    color: #0e5c0e;
+}
+
+.gerfaut-order-list .order-status.status-processing {
+    background: #c8d7e1;
+    color: #2e4453;
+}
+
+.gerfaut-order-list .order-status.status-on-hold {
+    background: #f8dda7;
+    color: #94660c;
+}
+
+.gerfaut-order-list .order-status.status-pending {
+    background: #e5e5e5;
+    color: #777;
+}
+
+/* Orders List Columns */
+.gerfaut-items-count {
+    display: inline-block;
+    background: #2271b1;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.column-order_items_count {
+    position: relative;
+}
+
+.column-order_items_count:hover .gerfaut-items-tooltip {
+    display: block !important;
+    position: absolute;
+    background: #1d2327;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.6;
+    z-index: 1000;
+    min-width: 200px;
+    top: 25px;
+    left: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.column-order_customer_phone a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.column-order_customer_phone a:hover {
+    color: #135e96;
+    text-decoration: underline;
+}
+
+.column-order_payment_method .payment-method {
+    font-size: 13px;
+    color: #50575e;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .gerfaut-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .gerfaut-stat-box h3 {
+        font-size: 24px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .gerfaut-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
