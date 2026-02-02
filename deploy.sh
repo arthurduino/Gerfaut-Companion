@@ -45,18 +45,63 @@ git push origin "v$VERSION"
 
 # 4. Créer la release GitHub avec le ZIP
 echo "🚀 Création de la release GitHub..."
-if ! command -v gh &> /dev/null; then
-    echo "⚠️  GitHub CLI (gh) n'est pas installé. Créez la release manuellement sur:"
-    echo "   https://github.com/arthurduino/Gerfaut-Companion/releases/new"
-    echo "   Tag: v$VERSION"
-    echo "   Uploadez le fichier: ../gerfaut-companion.zip"
-else
-    gh release create "v$VERSION" ../gerfaut-companion.zip \
+
+# Lire le token GitHub
+GITHUB_TOKEN=$(cat .github-token 2>/dev/null | tr -d '\n')
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "❌ Token GitHub introuvable dans .github-token"
+    exit 1
+fi
+
+REPO="arthurduino/Gerfaut-Companion"
+ZIP_FILE="../gerfaut-companion.zip"
+
+# Utiliser GitHub CLI si disponible, sinon l'API REST
+if command -v gh &> /dev/null; then
+    echo "   Utilisation de GitHub CLI..."
+    gh release create "v$VERSION" "$ZIP_FILE" \
         --title "v$VERSION" \
         --notes "$DESCRIPTION" \
-        --repo arthurduino/Gerfaut-Companion
+        --repo "$REPO"
+else
+    echo "   Utilisation de l'API GitHub..."
+    
+    # 1. Créer la release
+    RELEASE_DATA=$(cat <<EOF
+{
+  "tag_name": "v$VERSION",
+  "name": "v$VERSION",
+  "body": "$DESCRIPTION",
+  "draft": false,
+  "prerelease": false
+}
+EOF
+)
+    
+    RELEASE_RESPONSE=$(curl -s -X POST \
+        -H "Authorization: token $GITHUB_TOKEN" \
+        -H "Accept: application/vnd.github.v3+json" \
+        -d "$RELEASE_DATA" \
+        "https://api.github.com/repos/$REPO/releases")
+    
+    UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | grep -o '"upload_url": "[^"]*' | cut -d'"' -f4 | sed 's/{?name,label}//')
+    
+    if [ -z "$UPLOAD_URL" ]; then
+        echo "❌ Erreur lors de la création de la release"
+        echo "$RELEASE_RESPONSE"
+        exit 1
+    fi
+    
+    # 2. Uploader le ZIP
+    echo "   Upload du fichier ZIP..."
+    curl -s -X POST \
+        -H "Authorization: token $GITHUB_TOKEN" \
+        -H "Content-Type: application/zip" \
+        --data-binary @"$ZIP_FILE" \
+        "${UPLOAD_URL}?name=gerfaut-companion.zip" > /dev/null
 fi
 
 echo "✅ Déploiement terminé !"
 echo "   Version: $VERSION"
-echo "   ZIP: ../gerfaut-companion.zip"
+echo "   Release: https://github.com/$REPO/releases/tag/v$VERSION"
+echo "   ZIP: $ZIP_FILE"
