@@ -3,7 +3,7 @@
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://gerfaut.mooo.com
  * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Gerfaut
  * Author URI: https://gerfaut.mooo.com
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.0.2');
+define('GERFAUT_COMPANION_VERSION', '1.0.3');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -40,6 +40,9 @@ if (class_exists('YahnisElsts\PluginUpdateChecker\v5\PucFactory')) {
     $updateChecker->setBranch('main');
 }
 
+// Include shortcodes (always available, even without WooCommerce)
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-embed-shortcodes.php';
+
 // Check if WooCommerce is active
 if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
     add_action('admin_notices', 'gerfaut_companion_woocommerce_missing_notice');
@@ -57,7 +60,6 @@ function gerfaut_companion_woocommerce_missing_notice() {
 // Include plugin classes
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-dashboard-widget.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-orders-columns.php';
-require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-embed-shortcodes.php';
 
 // Declare HPOS compatibility
 add_action('before_woocommerce_init', function() {
