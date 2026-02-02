@@ -17,7 +17,30 @@ Extension WordPress/WooCommerce compagnon pour afficher des informations utiles 
 Ajoute des colonnes personnalisées :
 - **Suivi** : Numéro de suivi et transporteur
 - **État suivi** : Statut actuel du colis (Distribué, En transit, etc.)
-- **SAV** : Nombre de tickets SAV associés à la commande
+- **Drapeaux** : Bouton pour marquer les drapeaux comme commandés
+- **SAV** : Nombre de tickets SAV associés à la commande avec liens directs
+
+### Intégration de formulaires (Shortcodes)
+Intégrez facilement les formulaires sur vos pages WordPress :
+
+**Formulaire SAV :**
+```
+[gerfaut_sav]
+```
+
+**Formulaire de contact :**
+```
+[gerfaut_contact]
+```
+
+Paramètres optionnels :
+- `site_url` : URL du site (par défaut : URL WordPress actuelle)
+- `height` : Hauteur minimale du conteneur (ex: `height="600px"`)
+
+Exemple :
+```
+[gerfaut_sav height="800px"]
+```
 
 ## Génération du fichier ZIP
 
