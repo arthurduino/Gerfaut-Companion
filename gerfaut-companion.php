@@ -38,15 +38,6 @@ if (class_exists('YahnisElsts\PluginUpdateChecker\v5\PucFactory')) {
     
     // Définir la branche
     $updateChecker->setBranch('main');
-    
-    // Token d'accès GitHub (stocké dans un fichier sécurisé)
-    $tokenFile = GERFAUT_COMPANION_PLUGIN_DIR . '.github-token';
-    if (file_exists($tokenFile)) {
-        $token = trim(file_get_contents($tokenFile));
-        if (!empty($token)) {
-            $updateChecker->setAuthentication($token);
-        }
-    }
 }
 
 // Check if WooCommerce is active
