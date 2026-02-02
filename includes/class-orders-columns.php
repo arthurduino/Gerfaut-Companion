@@ -115,7 +115,7 @@ class Gerfaut_Companion_Orders_Columns {
                 
                 if ($contains_flags === 'oui') {
                     if ($flags_ordered === 'oui') {
-                        echo '<span class="gerfaut-flag-badge flag-ordered">✓ Commandés</span>';
+                        echo '<span class="gerfaut-flag-badge flag-ordered">Marqué comme commandé</span>';
                     } else {
                         echo '<button class="gerfaut-order-flags-btn" data-order-id="' . esc_attr($order->get_id()) . '" data-nonce="' . esc_attr(wp_create_nonce('order_flags_' . $order->get_id())) . '">';
                         echo '🚩 Commander';
