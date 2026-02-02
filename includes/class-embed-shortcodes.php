@@ -44,7 +44,7 @@ class Gerfaut_Embed_Shortcodes {
      * Génère le conteneur d'intégration
      */
     private function render_embed_container($form_type, $atts) {
-        $container_id = 'gerfaut-embed-' . $form_type . '-' . uniqid();
+        $container_id = 'gerfaut-embed-container';
         
         $style = '';
         if ($atts['height'] !== 'auto') {
