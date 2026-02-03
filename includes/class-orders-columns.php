@@ -39,7 +39,6 @@ class Gerfaut_Companion_Orders_Columns {
             // Insérer les colonnes après "Order"
             if ($key === 'order_number') {
                 $new_columns['gerfaut_tracking'] = __('Suivi', 'gerfaut-companion');
-                $new_columns['gerfaut_tracking_status'] = __('État suivi', 'gerfaut-companion');
                 $new_columns['gerfaut_flags'] = __('Drapeaux', 'gerfaut-companion');
                 $new_columns['gerfaut_sav'] = __('SAV', 'gerfaut-companion');
             }
@@ -84,26 +83,24 @@ class Gerfaut_Companion_Orders_Columns {
         switch ($column) {
             case 'gerfaut_tracking':
                 $tracking = $order->get_meta('_numero_suivi', true);
-                if ($tracking) {
+                $status = $order->get_meta('_etat_livraison', true);
+                
+                if ($tracking || $status) {
                     $carrier = $order->get_meta('_transporteur_suivi', true);
                     echo '<div class="gerfaut-tracking">';
-                    echo '<strong>' . esc_html($tracking) . '</strong>';
-                    if ($carrier) {
-                        echo '<br><small>' . esc_html($carrier) . '</small>';
+                    if ($tracking) {
+                        echo '<strong>' . esc_html($tracking) . '</strong>';
+                        if ($carrier) {
+                            echo '<br><small>' . esc_html($carrier) . '</small>';
+                        }
+                    }
+                    if ($status) {
+                        $status_class = $this->get_status_badge_class($status);
+                        echo '<br><span class="gerfaut-status-badge ' . esc_attr($status_class) . '">';
+                        echo esc_html($status);
+                        echo '</span>';
                     }
                     echo '</div>';
-                } else {
-                    echo '<span class="gerfaut-na">—</span>';
-                }
-                break;
-                
-            case 'gerfaut_tracking_status':
-                $status = $order->get_meta('_etat_livraison', true);
-                if ($status) {
-                    $status_class = $this->get_status_badge_class($status);
-                    echo '<span class="gerfaut-status-badge ' . esc_attr($status_class) . '">';
-                    echo esc_html($status);
-                    echo '</span>';
                 } else {
                     echo '<span class="gerfaut-na">—</span>';
                 }
@@ -115,10 +112,10 @@ class Gerfaut_Companion_Orders_Columns {
                 
                 if ($contains_flags === 'oui') {
                     if ($flags_ordered === 'oui') {
-                        echo '<span class="gerfaut-flag-badge flag-ordered">Marqué comme commandé</span>';
+                        echo '<span class="gerfaut-flag-badge flag-ordered">Commandé ✅</span>';
                     } else {
                         echo '<button class="gerfaut-order-flags-btn" data-order-id="' . esc_attr($order->get_id()) . '" data-nonce="' . esc_attr(wp_create_nonce('order_flags_' . $order->get_id())) . '">';
-                        echo 'Commandé';
+                        echo 'Commandé ?';
                         echo '</button>';
                     }
                 } else {
