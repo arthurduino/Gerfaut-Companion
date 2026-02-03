@@ -90,6 +90,24 @@ add_filter( 'wp_sitemaps_add_provider', function( $provider, $name ) {
     return $provider;
 }, 10, 2 );
 
+// Exclude WooCommerce pages from sitemap
+add_filter( 'wp_sitemaps_posts_query_args', function( $args, $post_type ) {
+    if ( 'page' === $post_type ) {
+        $args['post__not_in'] = array_map(
+            'intval',
+            array_filter([
+                get_option('woocommerce_cart_page_id'),
+                get_option('woocommerce_checkout_page_id'),
+                get_option('woocommerce_myaccount_page_id'),
+            ])
+        );
+    }
+    return $args;
+}, 10, 2 );
+
+// Disable taxonomies from XML sitemap
+add_filter( 'wp_sitemaps_taxonomies', '__return_empty_array' );
+
 // Enqueue admin styles
 function gerfaut_companion_admin_styles() {
     wp_enqueue_style(
