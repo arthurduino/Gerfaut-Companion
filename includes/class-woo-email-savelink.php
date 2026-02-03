@@ -12,6 +12,15 @@ class Gerfaut_Companion_Woo_Email_SavLink
     public function __construct()
     {
         add_action('woocommerce_email_after_order_table', array($this, 'render_sav_link'), 20, 4);
+        add_filter('woocommerce_email_footer_text', array($this, 'remove_footer_text'), 10, 2);
+    }
+
+    /**
+     * Supprime le texte du footer WooCommerce
+     */
+    public function remove_footer_text($footer_text, $email)
+    {
+        return '';
     }
 
     public function render_sav_link($order, $sent_to_admin, $plain_text, $email)
@@ -41,7 +50,7 @@ class Gerfaut_Companion_Woo_Email_SavLink
             return;
         }
 
-        echo '<div style="margin-top:16px; padding:12px; background:#f8f9fa; border:1px solid #e5e7eb; border-radius:6px;">';
+        echo '<div style="margin-top:16px; margin-bottom:16px; padding:12px; background:#f8f9fa; border:1px solid #e5e7eb; border-radius:6px;">';
         echo '<p style="margin:0 0 8px 0; font-size:14px; color:#111827;">Besoin d’aide pour cette commande ?</p>';
         echo '<a href="' . esc_url($sav_url) . '" style="display:inline-block; padding:10px 16px; background:#2563eb; color:#fff; text-decoration:none; border-radius:4px; font-size:14px;">Ouvrir un SAV</a>';
         echo '</div>';
