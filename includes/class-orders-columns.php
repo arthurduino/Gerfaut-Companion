@@ -89,7 +89,11 @@ class Gerfaut_Companion_Orders_Columns {
                     $carrier = $order->get_meta('_transporteur_suivi', true);
                     echo '<div class="gerfaut-tracking">';
                     if ($tracking) {
+                        // Build tracking URL for La Poste
+                        $tracking_url = 'https://www.laposte.fr/outils/suivre-vos-envois?code=' . urlencode($tracking);
+                        echo '<a href="' . esc_url($tracking_url) . '" target="_blank" rel="noopener" class="gerfaut-tracking-link">';
                         echo '<strong>' . esc_html($tracking) . '</strong>';
+                        echo '</a>';
                         if ($carrier) {
                             echo '<br><small>' . esc_html($carrier) . '</small>';
                         }
@@ -125,31 +129,17 @@ class Gerfaut_Companion_Orders_Columns {
                 
             case 'gerfaut_sav':
                 // Récupérer les tickets SAV depuis la base locale Laravel
-                $sav_count = $this->get_sav_count($order->get_id());
+                $ticket_ids = $this->get_sav_ticket_ids($order->get_id());
+                $has_open_sav = $this->has_open_sav($ticket_ids);
                 
-                if ($sav_count > 0) {
-                    $ticket_ids = $this->get_sav_ticket_ids($order->get_id());
+                if ($has_open_sav) {
+                    // Trouver le premier ticket ouvert
+                    $open_ticket_id = $this->get_first_open_ticket($ticket_ids);
+                    $sav_url = $this->get_sav_url($open_ticket_id, $order->get_id());
                     
-                    if (!empty($ticket_ids)) {
-                        // Si plusieurs tickets, afficher un dropdown ou le premier
-                        $first_ticket_id = $ticket_ids[0];
-                        $sav_url = $this->get_sav_url($first_ticket_id);
-                        
-                        echo '<a href="' . esc_url($sav_url) . '" class="gerfaut-sav-link" target="_blank">';
-                        echo '<span class="gerfaut-sav-badge">' . $sav_count . ' SAV</span>';
-                        echo '</a>';
-                        
-                        // Si plusieurs tickets, afficher les autres
-                        if (count($ticket_ids) > 1) {
-                            echo '<div class="gerfaut-sav-others">';
-                            for ($i = 1; $i < count($ticket_ids); $i++) {
-                                echo '<a href="' . esc_url($this->get_sav_url($ticket_ids[$i])) . '" target="_blank" class="gerfaut-sav-extra">+</a>';
-                            }
-                            echo '</div>';
-                        }
-                    } else {
-                        echo '<span class="gerfaut-sav-badge">' . $sav_count . '</span>';
-                    }
+                    echo '<a href="' . esc_url($sav_url) . '" class="gerfaut-sav-link" target="_blank">';
+                    echo '<span class="gerfaut-sav-badge">SAV ouvert</span>';
+                    echo '</a>';
                 } else {
                     echo '<span class="gerfaut-na">—</span>';
                 }
@@ -201,12 +191,34 @@ class Gerfaut_Companion_Orders_Columns {
     }
     
     /**
+     * Vérifie si au moins un ticket SAV est ouvert
+     */
+    private function has_open_sav($ticket_ids) {
+        // Si on a des ticket IDs, on considère qu'il y a un SAV ouvert
+        // Le statut est géré côté Laravel, pas dans WordPress
+        return !empty($ticket_ids);
+    }
+    
+    /**
+     * Récupère le premier ticket SAV ouvert
+     */
+    private function get_first_open_ticket($ticket_ids) {
+        if (empty($ticket_ids)) {
+            return null;
+        }
+        
+        // Retourner le premier ticket de la liste
+        return $ticket_ids[0];
+    }
+    
+    /**
      * Génère l'URL vers un ticket SAV spécifique
      */
-    private function get_sav_url($ticket_id) {
-        // URL vers votre application Laravel SAV
+    private function get_sav_url($ticket_id, $order_id) {
+        // URL vers votre application Laravel SAV (page admin authentifiée)
         $base_url = get_option('gerfaut_companion_sav_url', 'https://gerfaut.mooo.com');
-        return $base_url . '/sav/tickets/' . $ticket_id;
+        // Utiliser l'URL admin pour les utilisateurs WordPress admin
+        return $base_url . '/sav-tickets?order=' . $order_id;
     }
     
     /**
@@ -224,6 +236,19 @@ class Gerfaut_Companion_Orders_Columns {
             }
             .gerfaut-tracking small {
                 color: #666;
+            }
+            .gerfaut-tracking-link {
+                text-decoration: none;
+                color: inherit;
+            }
+            .gerfaut-tracking-link:hover {
+                text-decoration: underline;
+            }
+            .gerfaut-tracking-link strong {
+                color: #2271b1;
+            }
+            .gerfaut-tracking-link:hover strong {
+                color: #135e96;
             }
             .gerfaut-status-badge {
                 display: inline-block;
