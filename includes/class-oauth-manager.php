@@ -43,7 +43,7 @@ class Gerfaut_OAuth_Manager {
             'state' => $this->generate_state(),
         ];
         
-        return $this->gerfaut_url . '/oauth/authorize?' . http_build_query($params);
+        return $this->gerfaut_url . '/api/oauth/authorize?' . http_build_query($params);
     }
     
     /**
@@ -56,7 +56,7 @@ class Gerfaut_OAuth_Manager {
             return new WP_Error('invalid_state', 'Invalid OAuth state parameter');
         }
         
-        $response = wp_remote_post($this->gerfaut_url . '/oauth/token', [
+        $response = wp_remote_post($this->gerfaut_url . '/api/oauth/token', [
             'body' => [
                 'grant_type' => 'authorization_code',
                 'code' => $code,
@@ -216,7 +216,7 @@ class Gerfaut_OAuth_Manager {
             return null;
         }
         
-        $response = wp_remote_post($this->gerfaut_url . '/oauth/token', [
+        $response = wp_remote_post($this->gerfaut_url . '/api/oauth/token', [
             'body' => [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refresh_token,
