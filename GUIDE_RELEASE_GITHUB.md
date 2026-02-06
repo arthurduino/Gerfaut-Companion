@@ -49,5 +49,6 @@ Ce guide explique comment un agent IA peut créer une release du plugin WordPres
 3. Commit + tag git
 4. Créer la release GitHub avec l'archive
 5. Vérifier la publication
+
 Important :
-Ne créee pas de fichiers de documentation du processus.
+Ne créee pas de fichiers de documentation du processus ou de résumé en fichier MD.
