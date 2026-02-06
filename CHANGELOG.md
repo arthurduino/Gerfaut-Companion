@@ -1,5 +1,20 @@
 # Changelog - Gerfaut Companion Plugin
 
+## [1.3.4] - 2026-02-06
+
+### ✅ Validation d'adresse au checkout
+- Validation d'adresse en temps réel au checkout WooCommerce
+- Vérification automatique via API de géocodage
+- Scripts et styles dédiés pour l'intégration
+- Amélioration de la qualité des données d'adresse
+
+### 🗑️ Retrait des fonctionnalités OAuth
+- Suppression du système OAuth2 (non utilisé)
+- Simplification de l'architecture du plugin
+- Réduction de la taille et de la complexité
+
+---
+
 ## [1.3.0] - 2026-02-06
 
 ### 🎉 Major Features - OAuth2 Integration

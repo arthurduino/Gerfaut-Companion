@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://gerfaut.mooo.com
- * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Supporte OAuth2 pour connexion simplifiée et communication bidirectionnelle avec Gerfaut.
- * Version: 1.3.3
+ * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Validation d'adresse au checkout.
+ * Version: 1.3.4
  * Author: Gerfaut
  * Author URI: https://gerfaut.mooo.com
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.3.3');
+define('GERFAUT_COMPANION_VERSION', '1.3.4');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -62,10 +62,7 @@ function gerfaut_companion_woocommerce_missing_notice() {
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-dashboard-widget.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-orders-columns.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-woo-email-savelink.php';
-require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-oauth-manager.php';
-require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-gerfaut-api-client.php';
-require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-webhook-receiver.php';
-require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-oauth-settings-page.php';
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-address-validation.php';
 
 // Declare HPOS compatibility
 add_action('before_woocommerce_init', function() {
@@ -81,6 +78,9 @@ function gerfaut_companion_init() {
     
     // Initialize orders columns
     new Gerfaut_Companion_Orders_Columns();
+
+    // Initialize checkout address validation
+    new Gerfaut_Companion_Address_Validation();
     
     // Shortcodes embed are initialized directly in their class file
 }
