@@ -44,9 +44,11 @@ class Gerfaut_Companion_Address_Validation {
                 'placeholder' => 'Saisissez une adresse…',
                 'noResults' => 'Aucune adresse proposée',
                 'confirmProceed' => 'Adresse non validée. Voulez-vous continuer avec cette adresse ?\n\nVous pouvez aussi choisir une suggestion proposée.',
+                'confirmNoNumber' => 'Cette adresse ne comporte pas de numéro de voie.\n\nVoulez-vous continuer avec cette adresse ?',
                 'invalid' => 'Adresse non validée',
                 'valid' => 'Adresse validée',
-                'forced' => 'Adresse non validée (confirmée par l’utilisateur)',
+                'forced' => 'Adresse non validée (confirmée par l'utilisateur)',
+                'warning' => 'Attention : numéro de voie manquant',
             ),
         ));
     }

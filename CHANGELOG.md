@@ -1,5 +1,16 @@
 # Changelog - Gerfaut Companion Plugin
 
+## [1.3.5] - 2026-02-06
+
+### 🐛 Corrections de bugs d'affichage
+- Amélioration du feedback visuel de validation d'adresse
+- Détection des rues sans numéro avec avertissement approprié
+- Confirmation explicite avant validation d'adresse incomplète
+- Nettoyage correct des classes CSS de validation WooCommerce
+- Feedback immédiat lors de la frappe pour meilleure UX
+
+---
+
 ## [1.3.4] - 2026-02-06
 
 ### ✅ Validation d'adresse au checkout

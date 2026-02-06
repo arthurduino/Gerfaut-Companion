@@ -131,7 +131,13 @@
 
         state[prefix].selected = feature;
         state[prefix].forced = false;
-        setHint(prefix, 'valid', messages.valid || 'Adresse validée');
+
+        // Vérifier si c'est une rue sans numéro (mais pas un lieu-dit)
+        if (props.type === 'street' && !props.housenumber) {
+            setHint(prefix, 'forced', messages.warning || 'Attention : numéro de voie manquant');
+        } else {
+            setHint(prefix, 'valid', messages.valid || 'Adresse validée');
+        }
         hideSuggestions(prefix);
     }
 
@@ -161,6 +167,7 @@
         const query = getQuery(prefix);
         if (query.length < minChars) {
             hideSuggestions(prefix);
+            clearHint(prefix);
             return;
         }
 
@@ -170,9 +177,30 @@
                 const features = data && data.features ? data.features : [];
                 state[prefix].lastResults = features;
                 renderSuggestions(prefix, features);
+                
+                // Valider automatiquement la meilleure suggestion pour feedback immédiat
+                const best = features[0];
+                if (best && best.properties && typeof best.properties.score === 'number' && best.properties.score >= minScore) {
+                    const props = best.properties;
+                    if (isSelectedMatch(prefix, best)) {
+                        state[prefix].selected = best;
+                        if (props.type === 'street' && !props.housenumber) {
+                            setHint(prefix, 'forced', messages.warning || 'Attention : numéro de voie manquant');
+                        } else {
+                            setHint(prefix, 'valid', messages.valid || 'Adresse validée');
+                        }
+                    } else {
+                        setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
+                    }
+                } else if (features.length > 0) {
+                    setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
+                } else {
+                    setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
+                }
             })
             .fail(() => {
                 renderSuggestions(prefix, []);
+                setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
             });
     }
 
@@ -212,6 +240,26 @@
                 if (best && best.properties && typeof best.properties.score === 'number' && best.properties.score >= minScore) {
                     state[prefix].selected = best;
                     state[prefix].forced = false;
+                    
+                    // Vérifier si c'est une rue sans numéro (mais pas un lieu-dit)
+                    const props = best.properties;
+                    if (props.type === 'street' && !props.housenumber) {
+                        setHint(prefix, 'forced', messages.warning || 'Attention : numéro de voie manquant');
+                        renderSuggestions(prefix, features);
+                        
+                        if (forSubmit) {
+                            const confirmNoNumber = window.confirm(messages.confirmNoNumber || 'Cette adresse ne comporte pas de numéro de voie.\n\nVoulez-vous continuer ?');
+                            if (confirmNoNumber) {
+                                deferred.resolve(true);
+                            } else {
+                                deferred.resolve(false);
+                            }
+                        } else {
+                            deferred.resolve(true);
+                        }
+                        return;
+                    }
+                    
                     setHint(prefix, 'valid', messages.valid || 'Adresse validée');
                     deferred.resolve(true);
                     return;
@@ -265,6 +313,9 @@
                 state[prefix].selected = null;
                 state[prefix].forced = false;
                 clearHint(prefix);
+                // Effacer les classes de validation WooCommerce
+                fields.address1.removeClass('woocommerce-validated');
+                fields.fieldWrapper.removeClass('woocommerce-validated');
                 debounceSuggest(prefix);
             });
             fields.address1.on('blur', function() {
@@ -277,6 +328,9 @@
             fields.postcode.on('input', function() {
                 state[prefix].selected = null;
                 state[prefix].forced = false;
+                clearHint(prefix);
+                fields.address1.removeClass('woocommerce-validated');
+                fields.fieldWrapper.removeClass('woocommerce-validated');
                 debounceSuggest(prefix);
             });
             fields.postcode.on('blur', function() {
@@ -289,6 +343,9 @@
             fields.city.on('input', function() {
                 state[prefix].selected = null;
                 state[prefix].forced = false;
+                clearHint(prefix);
+                fields.address1.removeClass('woocommerce-validated');
+                fields.fieldWrapper.removeClass('woocommerce-validated');
                 debounceSuggest(prefix);
             });
             fields.city.on('blur', function() {
