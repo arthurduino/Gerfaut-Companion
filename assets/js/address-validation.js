@@ -177,30 +177,9 @@
                 const features = data && data.features ? data.features : [];
                 state[prefix].lastResults = features;
                 renderSuggestions(prefix, features);
-                
-                // Valider automatiquement la meilleure suggestion pour feedback immédiat
-                const best = features[0];
-                if (best && best.properties && typeof best.properties.score === 'number' && best.properties.score >= minScore) {
-                    const props = best.properties;
-                    if (isSelectedMatch(prefix, best)) {
-                        state[prefix].selected = best;
-                        if (props.type === 'street' && !props.housenumber) {
-                            setHint(prefix, 'forced', messages.warning || 'Attention : numéro de voie manquant');
-                        } else {
-                            setHint(prefix, 'valid', messages.valid || 'Adresse validée');
-                        }
-                    } else {
-                        setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
-                    }
-                } else if (features.length > 0) {
-                    setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
-                } else {
-                    setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
-                }
             })
             .fail(() => {
                 renderSuggestions(prefix, []);
-                setHint(prefix, 'invalid', messages.invalid || 'Adresse non validée');
             });
     }
 

@@ -1,5 +1,14 @@
 # Changelog - Gerfaut Companion Plugin
 
+## [1.3.6] - 2026-02-06
+
+### ❌ CORRECTIF CRITIQUE
+- **Correction erreur fatale** : Suppression du code de validation automatique qui causait un crash du site
+- Retour à la validation manuelle uniquement (plus stable)
+- Site fonctionnel restauré
+
+---
+
 ## [1.3.5] - 2026-02-06
 
 ### 🐛 Corrections de bugs d'affichage
