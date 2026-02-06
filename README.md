@@ -1,152 +1,27 @@
-# Gerfaut Companion 2.0.0
+# Gerfaut Companion Plugin
 
-## 📌 Description
+Extension WordPress/WooCommerce compagnon pour afficher des informations utiles sur le dashboard et la liste des commandes.
 
-Extension compagnon pour intégrer WordPress/WooCommerce avec Gerfaut. Cette version 2.0 ajoute l'authentification **OAuth2** et la **synchronisation bidirectionnelle** des commandes.
+## Fonctionnalités
 
-### ✨ Fonctionnalités principales
+### Dashboard WordPress
+- **Widget de statistiques** affichant :
+  - Nombre de commandes aujourd'hui
+  - Nombre de commandes cette semaine
+  - Nombre de commandes ce mois
+  - Revenus du jour
+- **Liste des commandes récentes** (5 dernières)
+- **Liste des commandes en attente** (en attente de paiement ou en attente)
 
-**Authentification OAuth2**
-- Connexion simplifiée avec un clic "Connect to Gerfaut"
-- Plus besoin de copier/coller de tokens manuels
-- Gestion automatique de l'expiration des tokens
+### Liste des commandes WooCommerce
+Ajoute des colonnes personnalisées :
+- **Suivi** : Numéro de suivi et transporteur
+- **État suivi** : Statut actuel du colis (Distribué, En transit, etc.)
+- **Drapeaux** : Bouton pour marquer les drapeaux comme commandés
+- **SAV** : Nombre de tickets SAV associés à la commande avec liens directs
 
-**Communication bidirectionnelle**
-- WordPress → Gerfaut : Synchronisation automatique des commandes
-- Gerfaut → WordPress : Webhooks en temps réel
-- Sync optionnelle des produits et tickets SAV
-
-**Dashboard & Colonnes WooCommerce**
-- Widget de statistiques (commandes, revenus)
-- Colonnes personnalisées (suivi, drapeaux, SAV)
-- Intégration des shortcodes [gerfaut_sav] et [gerfaut_contact]
-
----
-
-## 📋 Requirements
-
-- WordPress 5.8+
-- PHP 7.4+
-- WooCommerce 5.0+
-- Gerfaut 2.0+ (avec OAuth2 support)
-
----
-
-## 🚀 Installation & Setup
-
-### 1. Installation du plugin
-
-```bash
-# Copier le plugin
-cp -r gerfaut-companion /path/to/wordpress/wp-content/plugins/
-
-# Ou via FTP/SFTP
-# Uploader le dossier gerfaut-companion vers wp-content/plugins/
-```
-
-### 2. Activer le plugin
-
-**WordPress Admin > Plugins > Gerfaut Companion > Activate**
-
-### 3. Configuration initiale
-
-**WordPress Admin > Gerfaut > Connexion Gerfaut**
-
-#### 3.1 Configurer l'URL Gerfaut
-```
-Gerfaut URL: https://gerfaut.mooo.com
-Save Settings
-```
-
-#### 3.2 Autoriser la connexion
-```
-Cliquez le bouton: 🔗 Connect to Gerfaut
-↓
-Vous serez redirigé vers Gerfaut
-↓
-Acceptez l'autorisation
-↓
-Retour automatique à WordPress
-↓
-Status: ✓ Connected
-```
-
-#### 3.3 (Optionnel) Activer auto-sync
-```
-Auto-sync Orders: [✓] Coché
-Save Settings
-```
-
----
-
-## 🔧 Configuration avancée
-
-### Options WordPress (via WP-CLI)
-
-```bash
-# URL du serveur Gerfaut
-wp option update gerfaut_url 'https://gerfaut.mooo.com'
-
-# Activer/désactiver auto-sync
-wp option update gerfaut_auto_sync_orders 1
-
-# Vérifier l'authorization
-wp option get gerfaut_oauth_authorized
-
-# Vérifier l'email connecté
-wp option get gerfaut_user_email
-```
-
-### Webhooks
-
-Les webhooks sont **automatiquement enregistrés** :
-
-```
-POST https://votre-site.com/wp-json/gerfaut/v1/webhooks/order-updated
-POST https://votre-site.com/wp-json/gerfaut/v1/webhooks/order-shipment
-POST https://votre-site.com/wp-json/gerfaut/v1/webhooks/sav-ticket
-```
-
-Vérifiez que:
-1. **REST API** est activée (défaut)
-2. **Permalinks** ne contiennent pas index.php
-
----
-
-## 📡 Utilisation
-
-### Synchronisation automatique (si activée)
-
-**Automatique** - Les événements sont envoyés à Gerfaut :
-
-```
-Création de commande       → POST /api/wordpress/orders
-Changement de statut       → PUT /api/wordpress/orders/{id}
-```
-
-### Synchronisation manuelle
-
-Depuis votre code PHP :
-
-```php
-$client = new Gerfaut_API_Client();
-
-if ($client->is_ready()) {
-    // Notifier la création
-    $client->notify_order_created($order_id);
-    
-    // Notifier un changement
-    $client->notify_order_status_change($order_id, 'pending', 'processing');
-    
-    // Notifier l'expédition
-    $client->notify_order_shipment($order_id, 'FR1234567890', 'La Poste');
-    
-    // Synchroniser les produits
-    $client->sync_products([1, 2, 3]);
-}
-```
-
-### Shortcodes
+### Intégration de formulaires (Shortcodes)
+Intégrez facilement les formulaires sur vos pages WordPress :
 
 **Formulaire SAV :**
 ```
@@ -158,102 +33,21 @@ if ($client->is_ready()) {
 [gerfaut_contact]
 ```
 
-Avec paramètres optionnels :
+Paramètres optionnels :
+- `site_url` : URL du site (par défaut : URL WordPress actuelle)
+- `height` : Hauteur minimale du conteneur (ex: `height="600px"`)
+
+Exemple :
 ```
 [gerfaut_sav height="800px"]
 ```
 
----
+## Génération du fichier ZIP
 
-## 🔄 Migration depuis v1.x
+Pour créer le fichier ZIP à installer sur WordPress :
 
-La version 2.0 est **100% compatible** avec v1.x :
-
-✅ Toutes les données sont préservées
-✅ Tous les anciens paramètres fonctionnent
-✅ Migration progressive possible
-✅ Ancien système reste fonctionnel
-
----
-
-## 📚 Structure du plugin
-
-```
-gerfaut-companion/
-├── gerfaut-companion.php          # v2.0.0
-├── includes/
-│   ├── class-oauth-manager.php            # NEW
-│   ├── class-gerfaut-api-client.php       # NEW
-│   ├── class-webhook-receiver.php         # NEW
-│   ├── class-oauth-settings-page.php      # NEW
-│   ├── class-dashboard-widget.php
-│   ├── class-orders-columns.php
-│   └── ...autres fichiers...
-└── vendor/
-```
-
----
-
-## 🧪 Troubleshooting
-
-### Connexion impossible
-```
-1. Vérifier gerfaut_url: wp option get gerfaut_url
-2. Vérifier l'accès: curl https://gerfaut.mooo.com
-3. Réautoriser: Click "Connect to Gerfaut"
-```
-
-### Orders not syncing
-```
-1. Vérifier Auto-sync: wp option get gerfaut_auto_sync_orders
-2. Vérifier token: wp option get gerfaut_oauth_access_token
-3. Vérifier logs: tail -f wp-content/debug.log
-```
-
-### Webhooks not received
-```
-1. Vérifier REST API: wp rest-api info
-2. Vérifier permalinks: wp option get permalink_structure
-3. Vérifier logs: wp log tail
-```
-
----
-
-## 🔐 Sécurité
-
-✅ OAuth2 token management (1 année expiry)
-✅ HMAC-SHA256 webhook signatures
-✅ Tokens stockés sécurisés
-✅ Révocation facile (bouton Disconnect)
-
----
-
-## 📝 Changelog
-
-### v2.0.0 (2026-02-06) - Major Release
-
-**✨ New:**
-- OAuth2 Authentication
-- Simplified admin UI
-- Bidirectional communication
-- Automatic order syncing
-- Webhook support
-
-**🔒 Security:**
-- OAuth2 token management
-- HMAC-SHA256 signatures
-- Protected API endpoints
-
-**✅ Compatibility:**
-- 100% backward compatible
-- No data loss
-- Gradual migration path
-
-### v1.2.0 (Previous)
-- Dashboard widget
-- Order columns
-- Email integration
-- Shortcodes
+```bash
+cd /home/gerfaut.mooo.com/public_html
 zip -r gerfaut-companion.zip gerfaut-companion-plugin/ -x "*.git*" "*.DS_Store" "node_modules/*"
 ```
 

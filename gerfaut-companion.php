@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://gerfaut.mooo.com
- * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut OAuth2 pour connexion simplifiée à Gerfaut et synchronisation bidirectionnelle des commandes.
- * Version: 2.0.0
+ * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Supporte OAuth2 pour connexion simplifiée et communication bidirectionnelle avec Gerfaut.
+ * Version: 1.3.0
  * Author: Gerfaut
  * Author URI: https://gerfaut.mooo.com
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '2.0.0');
+define('GERFAUT_COMPANION_VERSION', '1.3.0');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
