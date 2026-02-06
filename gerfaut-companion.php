@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://gerfaut.mooo.com
- * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires.
- * Version: 1.2.0
+ * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut OAuth2 pour connexion simplifiée à Gerfaut et synchronisation bidirectionnelle des commandes.
+ * Version: 2.0.0
  * Author: Gerfaut
  * Author URI: https://gerfaut.mooo.com
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.2.0');
+define('GERFAUT_COMPANION_VERSION', '2.0.0');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -62,6 +62,10 @@ function gerfaut_companion_woocommerce_missing_notice() {
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-dashboard-widget.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-orders-columns.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-woo-email-savelink.php';
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-oauth-manager.php';
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-gerfaut-api-client.php';
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-webhook-receiver.php';
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-oauth-settings-page.php';
 
 // Declare HPOS compatibility
 add_action('before_woocommerce_init', function() {
