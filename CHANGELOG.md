@@ -1,5 +1,14 @@
 # Changelog - Gerfaut Companion Plugin
 
+## [1.3.7] - 2026-02-06
+
+### ❌ CORRECTIF CRITIQUE (bis)
+- **Correction erreur fatale** : Suppression des require_once OAuth qui causaient un crash (fichiers supprimés)
+- Les fichiers OAuth ont été définitivement retirés
+- Plugin stable sans dépendances OAuth
+
+---
+
 ## [1.3.6] - 2026-02-06
 
 ### ❌ CORRECTIF CRITIQUE
