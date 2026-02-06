@@ -43,6 +43,17 @@ class Gerfaut_OAuth_Settings_Page {
      */
     public function render_settings_page() {
         $oauth = new Gerfaut_OAuth_Manager();
+        
+        // Handle revoke request FIRST, before rendering HTML
+        if (isset($_POST['gerfaut_revoke'])) {
+            if (wp_verify_nonce($_POST['gerfaut_nonce'] ?? '', 'gerfaut_revoke_auth')) {
+                error_log('Gerfaut OAuth: Processing revoke from settings page');
+                $oauth->revoke_authorization();
+                wp_redirect(admin_url('admin.php?page=gerfaut-settings&revoked=1'));
+                exit;
+            }
+        }
+        
         $is_authorized = $oauth->is_authorized();
         $token = $oauth->get_access_token();
         $user_email = get_option('gerfaut_user_email');
@@ -182,15 +193,8 @@ class Gerfaut_OAuth_Settings_Page {
         </style>
         
         <?php
-        
-        // Handle revoke request
-        if (isset($_POST['gerfaut_revoke'])) {
-            if (wp_verify_nonce($_POST['gerfaut_nonce'] ?? '', 'gerfaut_revoke_auth')) {
-                $oauth->revoke_authorization();
-                wp_redirect(admin_url('admin.php?page=gerfaut-settings&revoked=1'));
-                exit;
-            }
-        }
+        // Revoke handler was already executed at the start of render_settings_page()
+        ?>
     }
 }
 

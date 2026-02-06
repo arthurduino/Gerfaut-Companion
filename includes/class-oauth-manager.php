@@ -189,6 +189,32 @@ class Gerfaut_OAuth_Manager {
      * Revoke OAuth authorization
      */
     public function revoke_authorization() {
+        $access_token = $this->get_access_token();
+        if ($access_token) {
+            $user_id = get_option('gerfaut_user_id');
+            error_log('Gerfaut OAuth: Revoking token. User ID: ' . $user_id . ', Token: ' . substr($access_token, 0, 10) . '...');
+            
+            $response = wp_remote_post($this->gerfaut_url . '/api/oauth/revoke', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $access_token,
+                    'Accept' => 'application/json',
+                ],
+                'body' => [
+                    'user_id' => $user_id,
+                ],
+                'timeout' => 10,
+                'sslverify' => apply_filters('https_local_over_ssl', false),
+            ]);
+            
+            if (is_wp_error($response)) {
+                error_log('Gerfaut OAuth: Revoke error - ' . $response->get_error_message());
+            } else {
+                $code = wp_remote_retrieve_response_code($response);
+                $body = wp_remote_retrieve_body($response);
+                error_log('Gerfaut OAuth: Revoke response - Code: ' . $code . ', Body: ' . $body);
+            }
+        }
+
         delete_option($this->token_option);
         delete_option($this->refresh_token_option);
         delete_option($this->token_expires_option);
