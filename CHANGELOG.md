@@ -1,5 +1,15 @@
 # Changelog - Gerfaut Companion Plugin
 
+## [1.3.8] - 2026-02-08
+
+### ✨ Corrections mineures
+- Amélioration des styles de validation d'adresse
+- Optimisation du code JavaScript
+- Corrections dans la classe d'intégration WooCommerce
+- Petites améliorations UX/UI
+
+---
+
 ## [1.3.7] - 2026-02-06
 
 ### ❌ CORRECTIF CRITIQUE (bis)

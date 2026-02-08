@@ -56,3 +56,11 @@
 .gerfaut-address-hint--forced {
     color: #d97706;
 }
+
+/* Limiter le liseré vert WooCommerce aux champs d'adresse */
+.woocommerce form .form-row.woocommerce-validated:not(#billing_address_1_field):not(#billing_postcode_field):not(#billing_city_field):not(#shipping_address_1_field):not(#shipping_postcode_field):not(#shipping_city_field) input,
+.woocommerce form .form-row.woocommerce-validated:not(#billing_address_1_field):not(#billing_postcode_field):not(#billing_city_field):not(#shipping_address_1_field):not(#shipping_postcode_field):not(#shipping_city_field) select,
+.woocommerce form .form-row.woocommerce-validated:not(#billing_address_1_field):not(#billing_postcode_field):not(#billing_city_field):not(#shipping_address_1_field):not(#shipping_postcode_field):not(#shipping_city_field) textarea {
+    border-color: inherit;
+    box-shadow: none;
+}

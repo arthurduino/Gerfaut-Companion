@@ -47,7 +47,7 @@ class Gerfaut_Companion_Address_Validation {
                 'confirmNoNumber' => 'Cette adresse ne comporte pas de numéro de voie.\n\nVoulez-vous continuer avec cette adresse ?',
                 'invalid' => 'Adresse non validée',
                 'valid' => 'Adresse validée',
-                'forced' => 'Adresse non validée (confirmée par l'utilisateur)',
+                'forced' => 'Adresse non validée (confirmée par l\'utilisateur)',
                 'warning' => 'Attention : numéro de voie manquant',
             ),
         ));

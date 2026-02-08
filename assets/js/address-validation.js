@@ -84,6 +84,23 @@
         }
     }
 
+    function resetValidation(prefix) {
+        const fields = getFields(prefix);
+        clearHint(prefix);
+        fields.address1.removeClass('woocommerce-validated');
+        fields.fieldWrapper.removeClass('woocommerce-validated');
+
+        if (fields.postcode.length) {
+            fields.postcode.removeClass('woocommerce-validated');
+            $('#' + prefix + '_postcode_field').removeClass('woocommerce-validated');
+        }
+
+        if (fields.city.length) {
+            fields.city.removeClass('woocommerce-validated');
+            $('#' + prefix + '_city_field').removeClass('woocommerce-validated');
+        }
+    }
+
     function hideSuggestions(prefix) {
         const fields = getFields(prefix);
         fields.fieldWrapper.find('.gerfaut-address-suggestions').hide().empty();
@@ -291,10 +308,7 @@
             fields.address1.on('input', function() {
                 state[prefix].selected = null;
                 state[prefix].forced = false;
-                clearHint(prefix);
-                // Effacer les classes de validation WooCommerce
-                fields.address1.removeClass('woocommerce-validated');
-                fields.fieldWrapper.removeClass('woocommerce-validated');
+                resetValidation(prefix);
                 debounceSuggest(prefix);
             });
             fields.address1.on('blur', function() {
@@ -307,9 +321,7 @@
             fields.postcode.on('input', function() {
                 state[prefix].selected = null;
                 state[prefix].forced = false;
-                clearHint(prefix);
-                fields.address1.removeClass('woocommerce-validated');
-                fields.fieldWrapper.removeClass('woocommerce-validated');
+                resetValidation(prefix);
                 debounceSuggest(prefix);
             });
             fields.postcode.on('blur', function() {
@@ -322,9 +334,7 @@
             fields.city.on('input', function() {
                 state[prefix].selected = null;
                 state[prefix].forced = false;
-                clearHint(prefix);
-                fields.address1.removeClass('woocommerce-validated');
-                fields.fieldWrapper.removeClass('woocommerce-validated');
+                resetValidation(prefix);
                 debounceSuggest(prefix);
             });
             fields.city.on('blur', function() {
@@ -342,9 +352,28 @@
         return prefixes;
     }
 
+    function hideCountryFieldIfFrance(prefix) {
+        const countryField = $('#' + prefix + '_country');
+        const countryFieldWrapper = $('#' + prefix + '_country_field');
+        if (countryField.length && countryFieldWrapper.length) {
+            const countryValue = countryField.val();
+            if (countryValue === 'FR' || countryValue === 'France') {
+                countryFieldWrapper.hide();
+            } else {
+                countryFieldWrapper.show();
+            }
+        }
+    }
+
+    function hideCountryFieldsIfFrance() {
+        hideCountryFieldIfFrance('billing');
+        hideCountryFieldIfFrance('shipping');
+    }
+
     function initAll() {
         initPrefix('billing');
         initPrefix('shipping');
+        hideCountryFieldsIfFrance();
     }
 
     function interceptSubmit() {
@@ -391,6 +420,11 @@
     $(document.body).on('updated_checkout', function() {
         initAll();
         interceptSubmit();
+    });
+
+    // Masquer le champ pays quand il change
+    $(document).on('change', '#billing_country, #shipping_country', function() {
+        hideCountryFieldsIfFrance();
     });
 
     $(document).on('click', function(event) {
