@@ -352,24 +352,6 @@
         return prefixes;
     }
 
-    function hideCountryFieldIfFrance(prefix) {
-        const countryField = $('#' + prefix + '_country');
-        const countryFieldWrapper = $('#' + prefix + '_country_field');
-        if (countryField.length && countryFieldWrapper.length) {
-            const countryValue = countryField.val();
-            if (countryValue === 'FR' || countryValue === 'France') {
-                countryFieldWrapper.hide();
-            } else {
-                countryFieldWrapper.show();
-            }
-        }
-    }
-
-    function hideCountryFieldsIfFrance() {
-        hideCountryFieldIfFrance('billing');
-        hideCountryFieldIfFrance('shipping');
-    }
-
     /**
      * Check if the selected country is France
      */
@@ -423,7 +405,6 @@
 
         initPrefix('billing');
         initPrefix('shipping');
-        hideCountryFieldsIfFrance();
     }
 
     function interceptSubmit() {
