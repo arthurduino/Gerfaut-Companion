@@ -1,5 +1,14 @@
 # Changelog - Gerfaut Companion Plugin
 
+## [1.3.10] - 2026-03-07
+
+### ✨ Amélioration de la validation d'adresses
+- **Validation d'adresses limitée à la France**: La validation et la correction d'adresses via l'API gouvernementale française (api-adresse.data.gouv.fr) est maintenant désactivée pour les commandes en dehors de la France
+- La fonctionnalité se réactive automatiquement si le client sélectionne la France comme pays de livraison
+- Améliore les performances pour les commandes internationales
+
+---
+
 ## [1.3.8] - 2026-02-08
 
 ### ✨ Corrections mineures

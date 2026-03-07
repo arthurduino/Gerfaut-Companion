@@ -19,6 +19,11 @@ class Gerfaut_Companion_Address_Validation {
             return;
         }
 
+        // Check if the selected country is France
+        if (!$this->is_france_selected()) {
+            return;
+        }
+
         wp_enqueue_style(
             'gerfaut-companion-address-validation',
             GERFAUT_COMPANION_PLUGIN_URL . 'assets/css/address-validation.css',
@@ -51,5 +56,28 @@ class Gerfaut_Companion_Address_Validation {
                 'warning' => 'Attention : numéro de voie manquant',
             ),
         ));
+    }
+
+    /**
+     * Check if France is the selected country
+     */
+    private function is_france_selected() {
+        if (!function_exists('WC')) {
+            return false;
+        }
+
+        $customer = WC()->customer;
+        if (!$customer) {
+            return false;
+        }
+
+        $country = $customer->get_billing_country();
+        
+        // Default to France if no country is set (will load the assets)
+        if (empty($country)) {
+            return true;
+        }
+
+        return $country === 'FR';
     }
 }

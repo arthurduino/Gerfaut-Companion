@@ -370,7 +370,57 @@
         hideCountryFieldIfFrance('shipping');
     }
 
+    /**
+     * Check if the selected country is France
+     */
+    function isFranceSelected() {
+        const billingCountry = $('#billing_country').val();
+        const shippingCountry = $('#shipping_country').val();
+        
+        const country = billingCountry || shippingCountry;
+        return country === 'FR' || country === 'France';
+    }
+
+    /**
+     * Clean up all address validation for a prefix
+     */
+    function cleanupPrefix(prefix) {
+        const fields = getFields(prefix);
+        if (!fields.address1.length) {
+            return;
+        }
+
+        fields.address1.off('input');
+        fields.address1.off('blur');
+        if (fields.postcode.length) {
+            fields.postcode.off('input');
+            fields.postcode.off('blur');
+        }
+        if (fields.city.length) {
+            fields.city.off('input');
+            fields.city.off('blur');
+        }
+
+        hideSuggestions(prefix);
+        clearHint(prefix);
+        resetValidation(prefix);
+    }
+
+    /**
+     * Clean up all address validation
+     */
+    function cleanupAll() {
+        cleanupPrefix('billing');
+        cleanupPrefix('shipping');
+    }
+
     function initAll() {
+        // Only initialize address validation if France is selected
+        if (!isFranceSelected()) {
+            cleanupAll();
+            return;
+        }
+
         initPrefix('billing');
         initPrefix('shipping');
         hideCountryFieldsIfFrance();
@@ -390,6 +440,11 @@
         let bypass = false;
 
         form.on('submit', function(e) {
+            // Only validate if France is selected
+            if (!isFranceSelected()) {
+                return true;
+            }
+
             if (bypass) {
                 return true;
             }
@@ -422,9 +477,13 @@
         interceptSubmit();
     });
 
-    // Masquer le champ pays quand il change
+    // Réinitialiser la validation quand le pays change
     $(document).on('change', '#billing_country, #shipping_country', function() {
-        hideCountryFieldsIfFrance();
+        // Re-initialize based on new country selection
+        setTimeout(function() {
+            initAll();
+            interceptSubmit();
+        }, 100);
     });
 
     $(document).on('click', function(event) {
