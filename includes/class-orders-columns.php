@@ -216,7 +216,7 @@ class Gerfaut_Companion_Orders_Columns {
      */
     private function get_sav_url($ticket_id, $order_id) {
         // URL vers votre application Laravel SAV (page admin authentifiée)
-        $base_url = get_option('gerfaut_companion_sav_url', 'https://gerfaut.mooo.com');
+        $base_url = get_option('gerfaut_companion_sav_url', 'https://manager.gerfaut.ovh');
         // Utiliser l'URL admin pour les utilisateurs WordPress admin
         return $base_url . '/sav-tickets?order=' . $order_id;
     }

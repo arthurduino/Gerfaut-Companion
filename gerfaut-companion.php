@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Gerfaut Companion
- * Plugin URI: https://gerfaut.mooo.com
+ * Plugin URI: https://manager.gerfaut.ovh
  * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Validation d'adresse au checkout.
- * Version: 1.3.8
+ * Version: 1.3.9
  * Author: Gerfaut
- * Author URI: https://gerfaut.mooo.com
+ * Author URI: https://manager.gerfaut.ovh
  * Text Domain: gerfaut-companion
  * Domain Path: /languages
  * Requires at least: 5.8
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.3.8');
+define('GERFAUT_COMPANION_VERSION', '1.3.9');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 

@@ -116,7 +116,7 @@
 ### 🚀 Upgrade Instructions
 1. Update the plugin
 2. Go to WordPress Admin > Gerfaut > Connexion Gerfaut
-3. Configure the Gerfaut URL (https://gerfaut.mooo.com)
+3. Configure the Gerfaut URL (https://manager.gerfaut.ovh)
 4. Click "Connect to Gerfaut"
 5. Authorize the connection
 6. (Optional) Enable auto-sync orders

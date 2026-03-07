@@ -47,7 +47,7 @@ Exemple :
 Pour créer le fichier ZIP à installer sur WordPress :
 
 ```bash
-cd /home/gerfaut.mooo.com/public_html
+cd /home/manager.gerfaut.ovh/public_html
 zip -r gerfaut-companion.zip gerfaut-companion-plugin/ -x "*.git*" "*.DS_Store" "node_modules/*"
 ```
 
@@ -58,7 +58,7 @@ Le fichier `gerfaut-companion.zip` sera créé et prêt à être téléversé su
 ### Commande unique pour déployer une nouvelle version
 
 ```bash
-cd /home/gerfaut.mooo.com/public_html/gerfaut-companion-plugin && chmod +x deploy.sh && ./deploy.sh 1.0.1 "Description de la mise à jour"
+cd /home/manager.gerfaut.ovh/public_html/gerfaut-companion-plugin && chmod +x deploy.sh && ./deploy.sh 1.0.1 "Description de la mise à jour"
 ```
 
 Cette commande :
@@ -142,7 +142,7 @@ Résumé rapide :
 
 ## Auteur
 
-Gerfaut - https://gerfaut.mooo.com
+Gerfaut - https://manager.gerfaut.ovh
 
 ## Licence
 

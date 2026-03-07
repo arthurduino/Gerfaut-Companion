@@ -5,7 +5,7 @@
 
 VERSION="v1.3.0"
 REPO="arthurduino/Gerfaut-Companion"
-ZIP_FILE="/home/gerfaut.mooo.com/public_html/gerfaut-companion-1.3.0.zip"
+ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.0.zip"
 
 RELEASE_NOTES="## 🎉 OAuth2 Bidirectional Integration
 

@@ -61,7 +61,7 @@ class Gerfaut_Embed_Shortcodes {
         
         // Charger le script une seule fois par page
         if (!self::$script_loaded) {
-            $output .= '<script src="https://gerfaut.mooo.com/embed.js" defer></script>';
+            $output .= '<script src="https://manager.gerfaut.ovh/embed.js" defer></script>';
             self::$script_loaded = true;
         }
         

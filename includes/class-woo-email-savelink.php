@@ -31,7 +31,7 @@ class Gerfaut_Companion_Woo_Email_SavLink
                 'email' => $billing_email,
                 'site' => $site,
             ),
-            'https://gerfaut.mooo.com/sav'
+            'https://manager.gerfaut.ovh/sav'
         );
 
         if ($plain_text) {
