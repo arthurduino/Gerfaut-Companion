@@ -1,4 +1,19 @@
-(function($) {
+(function(init) {
+    function ready($) {
+        init($);
+    }
+
+    if (typeof window.jQuery === 'undefined') {
+        var interval = setInterval(function() {
+            if (typeof window.jQuery !== 'undefined') {
+                clearInterval(interval);
+                ready(window.jQuery);
+            }
+        }, 50);
+    } else {
+        ready(window.jQuery);
+    }
+})(function($) {
     const config = window.gerfautMondialRelay || {};
     const ajaxUrl = config.ajaxUrl;
     const nonce = config.nonce;

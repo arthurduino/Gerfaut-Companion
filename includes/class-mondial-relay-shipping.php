@@ -154,16 +154,33 @@ class Gerfaut_Companion_Mondial_Relay_Shipping extends WC_Shipping_Method {
 
         $selected_point = WC()->session ? WC()->session->get('gerfaut_mondial_relay_point') : null;
         $selected_json  = $selected_point ? json_encode($selected_point) : '';
+        $selected_attr  = esc_attr($selected_json);
+        $button_label   = esc_html__('Choisir un point relais / locker', 'gerfaut-companion');
+        $no_point_label = esc_html__('Aucun point relais sélectionné.', 'gerfaut-companion');
+        $asset_url      = GERFAUT_COMPANION_PLUGIN_URL . 'assets/js/mondial-relay-checkout.js';
 
-        echo '<div class="gerfaut-mondial-relay-container" data-selected="' . esc_attr($selected_json) . '">
-            <p class="gerfaut-mondial-relay-selected">
-                ' . esc_html__('Aucun point relais sélectionné.', 'gerfaut-companion') . '
-            </p>
-            <button type="button" class="button gerfaut-mondial-relay-open-map" onclick="if (window.gerfautMondialRelay && typeof window.gerfautMondialRelay.openModal === \"function\") { window.gerfautMondialRelay.openModal(); } else { console.log(\"Gerfaut Relay: openModal not available\"); } return false;">' . esc_html__('Choisir un point relais / locker', 'gerfaut-companion') . '</button>
-            <input type="hidden" name="gerfaut_mondial_relay_point" class="gerfaut-mondial-relay-point" value="' . esc_attr($selected_json) . '" />
-            <script>console.log("Gerfaut Relay: inline debug script loaded");</script>
-        </div>';
-    }
+        echo <<<HTML
+<div class="gerfaut-mondial-relay-container" data-selected="$selected_attr">
+    <p class="gerfaut-mondial-relay-selected">$no_point_label</p>
+    <button type="button" class="button gerfaut-mondial-relay-open-map" onclick="if (window.gerfautMondialRelay && typeof window.gerfautMondialRelay.openModal === 'function') { window.gerfautMondialRelay.openModal(); } else { console.log('Gerfaut Relay: openModal not available'); } return false;">$button_label</button>
+    <input type="hidden" name="gerfaut_mondial_relay_point" class="gerfaut-mondial-relay-point" value="$selected_attr" />
+
+    <script>
+        console.log("Gerfaut Relay: inline debug script loaded");
+        setTimeout(function() {
+            var script = document.querySelector("script[src*=\"mondial-relay-checkout.js\"]");
+            console.log("Gerfaut Relay: script tag present?", !!script, script);
+
+            if (!script) {
+                var s = document.createElement('script');
+                s.src = "$asset_url";
+                s.onload = function() { console.log("Gerfaut Relay: fallback script loaded"); };
+                document.body.appendChild(s);
+            }
+        }, 500);
+    </script>
+</div>
+HTML;
 
     /**
      * Enqueue frontend assets for the checkout map.

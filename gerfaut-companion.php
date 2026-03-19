@@ -3,7 +3,7 @@
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://manager.gerfaut.ovh
  * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Validation d'adresse au checkout.
- * Version: 1.3.14
+ * Version: 1.3.15
  * Author: Gerfaut
  * Author URI: https://manager.gerfaut.ovh
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.3.14');
+define('GERFAUT_COMPANION_VERSION', '1.3.15');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -74,6 +74,38 @@ add_action('woocommerce_shipping_init', function() {
 add_filter('woocommerce_shipping_methods', function($methods) {
     $methods['gerfaut_mondial_relay'] = 'Gerfaut_Companion_Mondial_Relay_Shipping';
     return $methods;
+});
+
+// Ensure assets are loaded on checkout (even if the shipping method isn't initialized early enough).
+add_action('wp_enqueue_scripts', function() {
+    if (!function_exists('is_checkout') || !is_checkout()) {
+        return;
+    }
+
+    // Enqueue Leaflet (map) assets + our UI
+    wp_enqueue_style('gerfaut-mondial-relay-leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', array(), '1.9.4');
+    wp_enqueue_script('gerfaut-mondial-relay-leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), '1.9.4', true);
+
+    wp_enqueue_style(
+        'gerfaut-mondial-relay',
+        GERFAUT_COMPANION_PLUGIN_URL . 'assets/css/mondial-relay.css',
+        array(),
+        GERFAUT_COMPANION_VERSION
+    );
+
+    wp_enqueue_script(
+        'gerfaut-mondial-relay',
+        GERFAUT_COMPANION_PLUGIN_URL . 'assets/js/mondial-relay-checkout.js',
+        array('jquery', 'gerfaut-mondial-relay-leaflet'),
+        GERFAUT_COMPANION_VERSION,
+        true
+    );
+
+    wp_localize_script('gerfaut-mondial-relay', 'gerfautMondialRelay', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('gerfaut_mondial_relay_nonce'),
+        'shippingMethodId' => 'gerfaut_mondial_relay',
+    ));
 });
 
 // Declare HPOS compatibility
