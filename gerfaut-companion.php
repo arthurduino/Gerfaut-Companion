@@ -3,7 +3,7 @@
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://manager.gerfaut.ovh
  * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Validation d'adresse au checkout.
- * Version: 1.3.11
+ * Version: 1.3.12
  * Author: Gerfaut
  * Author URI: https://manager.gerfaut.ovh
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.3.11');
+define('GERFAUT_COMPANION_VERSION', '1.3.12');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -63,6 +63,18 @@ require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-dashboard-widget.php
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-orders-columns.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-woo-email-savelink.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-address-validation.php';
+
+// Register shipping method (requires WooCommerce).
+add_action('woocommerce_shipping_init', function() {
+    if (!class_exists('Gerfaut_Companion_Mondial_Relay_Shipping')) {
+        require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-mondial-relay-shipping.php';
+    }
+});
+
+add_filter('woocommerce_shipping_methods', function($methods) {
+    $methods['gerfaut_mondial_relay'] = 'Gerfaut_Companion_Mondial_Relay_Shipping';
+    return $methods;
+});
 
 // Declare HPOS compatibility
 add_action('before_woocommerce_init', function() {

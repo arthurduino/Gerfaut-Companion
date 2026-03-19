@@ -3,34 +3,29 @@
 # GitHub Release Creation Script
 # Creates a release on GitHub using the GitHub API
 
-VERSION="v1.3.10"
+VERSION="v1.3.12"
 REPO="arthurduino/Gerfaut-Companion"
-ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.10.zip"
+ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.12.zip"
 
-RELEASE_NOTES="## ✨ Amélioration de la validation d'adresses
+RELEASE_NOTES="## ✨ Nouveautés : Mondial Relay + Meilleur suivi de commande
 
 ### Changements
-
-#### Validation d'adresses limitée à la France
-- La fonctionnalité de validation et de correction d'adresses via l'API gouvernementale française (api-adresse.data.gouv.fr) est maintenant **désactivée pour les commandes en dehors de la France**
-- Les assets CSS/JavaScript de validation ne sont chargés que si le pays sélectionné est la France
-- La validation se désactive automatiquement quand le client change le pays
-- La validation se réactive automatiquement si le client sélectionne à nouveau la France
+- Ajout d'un mode de livraison **Mondial Relay** (méthode WooCommerce dédiée)
+- Amélioration du suivi de commande : les liens sont maintenant récupérés depuis **config/carriers.json** (support multi-transporteurs)
+- Ajout des assets CSS/JS pour le checkout Mondial Relay
 
 ### Avantages
-✅ Améliore les performances pour les commandes internationales
-✅ Comportement plus logique (pas de validation d'adresse française pour les adresses étrangères)
-✅ Dynamique - s'adapte au changement de pays pendant la saisie
+✅ Plus de flexibilité pour les transporteurs (suivi dynamique)
+✅ Nouvelle option de livraison Mondial Relay dans WooCommerce
 
 ### Compatibilité
-✅ Entièrement compatible avec les versions précédentes
-✅ Aucun changement pour les commandes françaises
+✅ Compatible avec les versions précédentes
+✅ Fonctionne avec les configurations existantes de suivi de transporteurs
 
-### Cas d'usage
-- Client français : validation activée ✅
-- Client étranger : validation désactivée ❌
-- Client change pays vers France : validation activée ✅
-- Client change pays vers l'étranger : validation désactivée ❌"
+### Notes
+- Le suivi est généré uniquement si un modèle de lien est présent dans **config/carriers.json**
+- La méthode Mondial Relay est activée uniquement si WooCommerce est actif
+"
 
 echo "======================================================================"
 echo "GitHub Release Creation"
@@ -44,7 +39,7 @@ echo "To create the release manually:"
 echo ""
 echo "1. Go to: https://github.com/$REPO/releases/new"
 echo "2. Tag: $VERSION"
-echo "3. Title: Gerfaut Companion $VERSION - Address Validation France Only"
+echo "3. Title: Gerfaut Companion $VERSION - Mondial Relay & meilleurs suivis"
 echo "4. Upload the ZIP file: $ZIP_FILE"
 echo "5. Paste the release notes (see below)"
 echo ""

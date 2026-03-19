@@ -89,11 +89,14 @@ class Gerfaut_Companion_Orders_Columns {
                     $carrier = $order->get_meta('_transporteur_suivi', true);
                     echo '<div class="gerfaut-tracking">';
                     if ($tracking) {
-                        // Build tracking URL for La Poste
-                        $tracking_url = 'https://www.laposte.fr/outils/suivre-vos-envois?code=' . urlencode($tracking);
-                        echo '<a href="' . esc_url($tracking_url) . '" target="_blank" rel="noopener" class="gerfaut-tracking-link">';
-                        echo '<strong>' . esc_html($tracking) . '</strong>';
-                        echo '</a>';
+                        $tracking_url = $this->get_tracking_url($tracking, $carrier);
+                        if ($tracking_url) {
+                            echo '<a href="' . esc_url($tracking_url) . '" target="_blank" rel="noopener" class="gerfaut-tracking-link">';
+                            echo '<strong>' . esc_html($tracking) . '</strong>';
+                            echo '</a>';
+                        } else {
+                            echo '<strong>' . esc_html($tracking) . '</strong>';
+                        }
                         if ($carrier) {
                             echo '<br><small>' . esc_html($carrier) . '</small>';
                         }
@@ -145,6 +148,36 @@ class Gerfaut_Companion_Orders_Columns {
                 }
                 break;
         }
+    }
+
+    /**
+     * Construit l'URL de suivi à partir de la configuration Laravel partagée.
+     */
+    private function get_tracking_url($tracking, $carrier) {
+        if (empty($tracking) || empty($carrier)) {
+            return null;
+        }
+
+        $project_root = dirname(__DIR__, 2);
+        $config_path = $project_root . '/config/carriers.json';
+
+        if (!file_exists($config_path) || !is_readable($config_path)) {
+            return null;
+        }
+
+        $config = json_decode(file_get_contents($config_path), true);
+        if (!is_array($config) || empty($config['carriers'])) {
+            return null;
+        }
+
+        $carrier_key = strtolower(str_replace(' ', '_', trim($carrier)));
+        $template = $config['carriers'][$carrier_key]['tracking_url'] ?? null;
+
+        if (!$template) {
+            return null;
+        }
+
+        return str_replace('{tracking_number}', rawurlencode($tracking), $template);
     }
     
     /**
