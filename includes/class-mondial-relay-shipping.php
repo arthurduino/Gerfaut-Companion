@@ -107,9 +107,9 @@ class Gerfaut_Companion_Mondial_Relay_Shipping extends WC_Shipping_Method {
                 'default'     => '',
             ),
             'code_client' => array(
-                'title'       => __('Code client / mot de passe', 'gerfaut-companion'),
+                'title'       => __('Clé privée (mot de passe API)', 'gerfaut-companion'),
                 'type'        => 'text',
-                'description' => __('Code client ou mot de passe fourni par Mondial Relay.', 'gerfaut-companion'),
+                'description' => __('Clé privée fournie par Mondial Relay (utilisée pour calculer la signature Security).', 'gerfaut-companion'),
                 'default'     => '',
             ),
             'api_mode' => array(
@@ -159,8 +159,9 @@ class Gerfaut_Companion_Mondial_Relay_Shipping extends WC_Shipping_Method {
             <p class="gerfaut-mondial-relay-selected">
                 ' . esc_html__('Aucun point relais sélectionné.', 'gerfaut-companion') . '
             </p>
-            <button type="button" class="button gerfaut-mondial-relay-open-map">' . esc_html__('Choisir un point relais / locker', 'gerfaut-companion') . '</button>
+            <button type="button" class="button gerfaut-mondial-relay-open-map" onclick="if (window.gerfautMondialRelay && typeof window.gerfautMondialRelay.openModal === \"function\") { window.gerfautMondialRelay.openModal(); } else { console.log(\"Gerfaut Relay: openModal not available\"); } return false;">' . esc_html__('Choisir un point relais / locker', 'gerfaut-companion') . '</button>
             <input type="hidden" name="gerfaut_mondial_relay_point" class="gerfaut-mondial-relay-point" value="' . esc_attr($selected_json) . '" />
+            <script>console.log("Gerfaut Relay: inline debug script loaded");</script>
         </div>';
     }
 
@@ -172,23 +173,8 @@ class Gerfaut_Companion_Mondial_Relay_Shipping extends WC_Shipping_Method {
             return;
         }
 
-        // Only enqueue if WooCommerce is active and this shipping method is available.
-        if (!function_exists('WC') || !WC() || !WC()->shipping()) {
-            return;
-        }
-
-        $found = false;
-        $packages = WC()->cart->get_shipping_packages();
-        foreach ($packages as $package) {
-            foreach ($package['rates'] as $rate) {
-                if (isset($rate->method_id) && $rate->method_id === $this->id) {
-                    $found = true;
-                    break 2;
-                }
-            }
-        }
-
-        if (!$found) {
+        // Ensure WooCommerce is active.
+        if (!function_exists('WC') || !WC()) {
             return;
         }
 
@@ -329,73 +315,84 @@ class Gerfaut_Companion_Mondial_Relay_Shipping extends WC_Shipping_Method {
             return new WP_Error('missing_credentials', __('Identifiants Mondial Relay manquants.', 'gerfaut-companion'));
         }
 
-        $endpoint = $this->api_mode === 'test'
-            ? 'https://api.mondialrelay.com/Web_Services.asmx?WSDL'
-            : 'https://api.mondialrelay.com/Web_Services.asmx?WSDL';
+        if (!extension_loaded('soap')) {
+            return new WP_Error('no_soap', __('L’extension SOAP n’est pas disponible sur le serveur.', 'gerfaut-companion'));
+        }
+
+        $endpoint = 'https://api.mondialrelay.com/Web_Services.asmx?wsdl';
 
         try {
-            $soap = new SoapClient($endpoint, array('cache_wsdl' => WSDL_CACHE_NONE));
+            $soap = new SoapClient($endpoint, array(
+                'trace' => true,
+                'cache_wsdl' => WSDL_CACHE_NONE,
+                'connection_timeout' => 10,
+            ));
         } catch (Exception $e) {
             return new WP_Error('soap_error', $e->getMessage());
         }
 
         $params = array(
-            'Enseigne'  => $this->enseigne,
-            'Pays'      => 'FR',
-            'CP'        => $postcode,
-            'Ville'     => $city,
-            'Taille'    => 'S',
-            'Poids'     => '1',
-            'Action'    => '1',
-            'Mode'      => '1',
+            'Enseigne'        => $this->enseigne,
+            'Pays'            => 'FR',
+            'Ville'           => $city,
+            'CP'              => $postcode,
+            'Poids'           => '100',
+            'Action'          => '24R',
+            'NombreResultats' => $limit,
         );
 
+        $code = implode('', $params) . $this->code_client;
+        $params['Security'] = strtoupper(md5($code));
+
         try {
-            $response = $soap->WSI2_GetRelais($params);
+            $response = $soap->WSI4_PointRelais_Recherche($params);
         } catch (Exception $e) {
             return new WP_Error('soap_request_error', $e->getMessage());
         }
 
-        if (empty($response) || !isset($response->WSI2_GetRelaisResult)) {
+        if (empty($response) || !isset($response->WSI4_PointRelais_RechercheResult)) {
             return new WP_Error('no_response', __('Aucune réponse de Mondial Relay.', 'gerfaut-companion'));
         }
 
-        $raw = $response->WSI2_GetRelaisResult;
-        $lines = explode('#', $raw);
-
-        // The response is a hash separated string: first chunk is status
-        if (empty($lines) || count($lines) < 2) {
+        $result = $response->WSI4_PointRelais_RechercheResult;
+        if (!isset($result->STAT)) {
             return new WP_Error('invalid_response', __('Réponse invalide reçue de Mondial Relay.', 'gerfaut-companion'));
         }
 
-        $status = $lines[0];
-        if ($status !== 'OK') {
-            return new WP_Error('api_error', sprintf(__('Erreur Mondial Relay : %s', 'gerfaut-companion'), $status));
+        if ((string) $result->STAT !== '0') {
+            $message = (isset($result->error_message) && $result->error_message)
+                ? $result->error_message
+                : sprintf(__('Erreur Mondial Relay : %s', 'gerfaut-companion'), (string) $result->STAT);
+            return new WP_Error('api_error', $message);
+        }
+
+        if (empty($result->PointsRelais) || empty($result->PointsRelais->PointRelais_Details)) {
+            return array();
+        }
+
+        $pickup_list = $result->PointsRelais->PointRelais_Details;
+        if (!is_array($pickup_list)) {
+            $pickup_list = array($pickup_list);
         }
 
         $points = array();
-        $chunks = array_slice($lines, 1);
-
-        // Response format: each relais has 12 parts, see Mondial Relay docs.
-        $perPoint = 12;
-        foreach (array_chunk($chunks, $perPoint) as $chunk) {
-            if (count($chunk) < $perPoint) {
-                continue;
-            }
+        foreach ($pickup_list as $one_pickup) {
+            $lat = isset($one_pickup->Latitude) ? str_replace(',', '.', (string) $one_pickup->Latitude) : '';
+            $lng = isset($one_pickup->Longitude) ? str_replace(',', '.', (string) $one_pickup->Longitude) : '';
 
             $points[] = array(
-                'id'       => $chunk[0],
-                'name'     => $chunk[1],
-                'address'  => $chunk[2],
-                'postcode' => $chunk[3],
-                'city'     => $chunk[4],
-                'lat'      => $chunk[5],
-                'lng'      => $chunk[6],
-                'phone'    => $chunk[7],
-                'type'     => $chunk[8],
-                'distance' => $chunk[9],
-                'comment'  => $chunk[10],
-                'schedule' => $chunk[11],
+                'id'       => isset($one_pickup->Num) ? (string) $one_pickup->Num : '',
+                'name'     => isset($one_pickup->LgAdr1) ? (string) $one_pickup->LgAdr1 : '',
+                'address'  => isset($one_pickup->LgAdr3) ? (string) $one_pickup->LgAdr3 : '',
+                'postcode' => isset($one_pickup->CP) ? (string) $one_pickup->CP : '',
+                'city'     => isset($one_pickup->Ville) ? (string) $one_pickup->Ville : '',
+                'lat'      => $lat,
+                'lng'      => $lng,
+                'phone'    => isset($one_pickup->Tel) ? (string) $one_pickup->Tel : '',
+                'type'     => isset($one_pickup->Type) ? (string) $one_pickup->Type : '',
+                'distance' => isset($one_pickup->Distance) ? (string) $one_pickup->Distance : '',
+                'comment'  => isset($one_pickup->Commentaire) ? (string) $one_pickup->Commentaire : '',
+                'schedule' => isset($one_pickup->Horaires) ? (string) $one_pickup->Horaires : '',
             );
 
             if (count($points) >= $limit) {
