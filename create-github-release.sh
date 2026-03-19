@@ -7,16 +7,13 @@ VERSION="v1.3.12"
 REPO="arthurduino/Gerfaut-Companion"
 ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.12.zip"
 
-RELEASE_NOTES="## ✨ Nouveautés : Mondial Relay + Meilleur suivi de commande
+RELEASE_NOTES="## ✨ Nouveautés : Meilleur suivi de commande
 
 ### Changements
-- Ajout d'un mode de livraison **Mondial Relay** (méthode WooCommerce dédiée)
 - Amélioration du suivi de commande : les liens sont maintenant récupérés depuis **config/carriers.json** (support multi-transporteurs)
-- Ajout des assets CSS/JS pour le checkout Mondial Relay
 
 ### Avantages
 ✅ Plus de flexibilité pour les transporteurs (suivi dynamique)
-✅ Nouvelle option de livraison Mondial Relay dans WooCommerce
 
 ### Compatibilité
 ✅ Compatible avec les versions précédentes
@@ -24,7 +21,6 @@ RELEASE_NOTES="## ✨ Nouveautés : Mondial Relay + Meilleur suivi de commande
 
 ### Notes
 - Le suivi est généré uniquement si un modèle de lien est présent dans **config/carriers.json**
-- La méthode Mondial Relay est activée uniquement si WooCommerce est actif
 "
 
 echo "======================================================================"
@@ -39,7 +35,7 @@ echo "To create the release manually:"
 echo ""
 echo "1. Go to: https://github.com/$REPO/releases/new"
 echo "2. Tag: $VERSION"
-echo "3. Title: Gerfaut Companion $VERSION - Mondial Relay & meilleurs suivis"
+echo "3. Title: Gerfaut Companion $VERSION - meilleurs suivis"
 echo "4. Upload the ZIP file: $ZIP_FILE"
 echo "5. Paste the release notes (see below)"
 echo ""
