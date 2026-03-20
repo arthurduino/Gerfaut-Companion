@@ -13,22 +13,22 @@
         var quantity = parseInt($form.find('select[name="sticker_quantity"]').val(), 10);
 
         if (orientation === 'portrait') {
-            $form.find('.sticker-dimen-label').text('Hauteur (mm, largeur 62mm fixe)');
-        } else {
-            $form.find('.sticker-dimen-label').text('Largeur (mm, hauteur 62mm fixe)');
-        }
+                    $form.find('.sticker-dimen-label').text('Hauteur (calculée à partir de l’image, largeur 62mm fixe)');
+                } else {
+                    $form.find('.sticker-dimen-label').text('Largeur (calculée à partir de l’image, hauteur 62mm fixe)');
+                }
 
-        var fixed = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
-        $form.find('.gerfaut-sticker-preview-size').text('Dimensions prévues : ' + fixed);
+                var fixed = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
+                $form.find('#sticker_dimen_text').text(dimen + ' mm');
         $form.find('.gerfaut-sticker-preview-quantity').text('Quantité : ' + quantity);
         $form.find('.gerfaut-sticker-preview-threshold').text('Seuil noir : ' + threshold);
 
         var $canvas = $form.find('.gerfaut-sticker-preview-canvas');
-        var $img = $form.find('.gerfaut-sticker-preview-image');
 
         if (imageUrl) {
-            $img.off('load.preview').on('load.preview', function() {
-                var img = this;
+            var img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = function() {
                 var cw = Math.min(320, img.naturalWidth);
                 var ch = Math.min(320, img.naturalHeight);
                 $canvas.attr({ width: cw, height: ch });
@@ -42,24 +42,29 @@
                     var g = data[i + 1];
                     var b = data[i + 2];
                     var gray = Math.round((r + g + b) / 3);
-                    data[i] = data[i + 1] = data[i + 2] = (gray >= threshold ? 255 : 0);
+                    var blackOrWhite = gray >= threshold ? 255 : 0;
+                    data[i] = data[i + 1] = data[i + 2] = blackOrWhite;
                 }
                 ctx.putImageData(imgData, 0, 0);
 
                 var naturalW = img.naturalWidth;
                 var naturalH = img.naturalHeight;
                 var target = (orientation === 'portrait') ? 62 / naturalW : 62 / naturalH;
-                if (!isNaN(target) && isFinite(target)) {
-                    dimen = (orientation === 'portrait') ? naturalH * target : naturalW * target;
-                    dimen = Math.max(10, Math.round(dimen));
+                if (!isNaN(target) && isFinite(target) && target > 0) {
+                    dimen = (orientation === 'portrait') ? Math.max(10, Math.round(naturalH * target)) : Math.max(10, Math.round(naturalW * target));
                     $form.find('input[name="sticker_dimen"]').val(dimen);
+                    $form.find('#sticker_dimen_text').text(dimen + ' mm');
                     var fixed2 = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
-                    $form.find('.gerfaut-sticker-preview-size').text('Dimensions prévues : ' + fixed2 + ' (ajustées en fonction image)');
+                    $form.find('.gerfaut-sticker-preview-size').text('Dimensions prévues : ' + fixed2 + ' (ajustées en fonction de l’image)');
                 }
-            }).attr('src', imageUrl).show();
-            $canvas.show();
+
+                $canvas.show();
+            };
+            img.onerror = function() {
+                showError('Impossible de charger l’image pour l’aperçu.');
+            };
+            img.src = imageUrl;
         } else {
-            $img.hide();
             $canvas.hide();
         }
     }

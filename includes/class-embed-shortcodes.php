@@ -63,15 +63,25 @@ class Gerfaut_Embed_Shortcodes {
                         <button class="button gerfaut-toggle-orientation" style="margin-top:8px;">Basculer orientation</button>
                     </div>
                     <div>
-                        <label class="sticker-dimen-label"><?php echo $atts['orientation'] === 'portrait' ? 'Hauteur (mm, largeur 62mm fixe)' : 'Largeur (mm, hauteur 62mm fixe)'; ?></label>
-                        <input type="number" name="sticker_dimen" value="<?php echo esc_attr($atts['dimen']); ?>" min="10" required />
+                        <label class="sticker-dimen-label"><?php echo $atts['orientation'] === 'portrait' ? 'Hauteur (calculée à partir de l’image, largeur 62mm fixe)' : 'Largeur (calculée à partir de l’image, hauteur 62mm fixe)'; ?></label>
+                        <input type="hidden" name="sticker_dimen" value="<?php echo esc_attr($atts['dimen']); ?>" />
+                        <p id="sticker_dimen_text"><?php echo esc_html($atts['dimen']); ?> mm</p>
                     </div>
                     <div>
                         <label for="sticker_quantity">Quantité</label>
                         <select name="sticker_quantity">
                             <?php $quantities = get_option('gerfaut_sticker_quantities', array(100, 200, 300, 500, 1000)); ?>
                             <?php foreach ($quantities as $qty) : ?>
-                                <option value="<?php echo esc_attr($qty); ?>"><?php echo esc_html($qty); ?></option>
+                                <?php
+                                if (is_array($qty) && isset($qty['quantity'])) {
+                                    $value = intval($qty['quantity']);
+                                    $label = $value . ' (réduction ' . intval($qty['discount'] ?? 0) . '%)';
+                                } else {
+                                    $value = intval($qty);
+                                    $label = $value;
+                                }
+                                ?>
+                                <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
