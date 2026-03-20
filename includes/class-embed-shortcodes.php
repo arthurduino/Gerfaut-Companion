@@ -14,6 +14,7 @@ class Gerfaut_Embed_Shortcodes {
     public function __construct() {
         add_shortcode('gerfaut_sav', array($this, 'render_sav_form'));
         add_shortcode('gerfaut_contact', array($this, 'render_contact_form'));
+        add_shortcode('gerfaut_sticker', array($this, 'render_sticker_form'));
     }
     
     /**
@@ -38,6 +39,17 @@ class Gerfaut_Embed_Shortcodes {
         ), $atts);
         
         return $this->render_embed_container('contact', $atts);
+    }
+
+    /**
+     * Rendu du formulaire sticker
+     */
+    public function render_sticker_form($atts) {
+        $atts = shortcode_atts(array(
+            'height' => 'auto',
+        ), $atts);
+
+        return $this->render_embed_container('sticker', $atts);
     }
     
     /**

@@ -3,7 +3,7 @@
  * Plugin Name: Gerfaut Companion
  * Plugin URI: https://manager.gerfaut.ovh
  * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav] et [gerfaut_contact] pour intégrer les formulaires. Validation d'adresse au checkout.
- * Version: 1.3.16
+ * Version: 1.3.17
  * Author: Gerfaut
  * Author URI: https://manager.gerfaut.ovh
  * Text Domain: gerfaut-companion
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('GERFAUT_COMPANION_VERSION', '1.3.16');
+define('GERFAUT_COMPANION_VERSION', '1.3.17');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -63,6 +63,7 @@ require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-dashboard-widget.php
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-orders-columns.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-woo-email-savelink.php';
 require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-address-validation.php';
+require_once GERFAUT_COMPANION_PLUGIN_DIR . 'includes/class-sticker-builder.php';
 
 
 // Declare HPOS compatibility
@@ -135,6 +136,27 @@ function gerfaut_companion_block_editor_assets() {
     );
 }
 add_action('enqueue_block_editor_assets', 'gerfaut_companion_block_editor_assets');
+add_action('wp_enqueue_scripts', 'gerfaut_companion_frontend_assets');
+
+function gerfaut_companion_frontend_assets() {
+    wp_enqueue_script(
+        'gerfaut-companion-sticker',
+        GERFAUT_COMPANION_PLUGIN_URL . 'assets/js/sticker-builder.js',
+        array('jquery'),
+        GERFAUT_COMPANION_VERSION,
+        true
+    );
+    wp_localize_script('gerfaut-companion-sticker', 'gerfautSticker', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'tiers' => get_option('gerfaut_sticker_quantity_tiers', array())
+    ));
+    wp_enqueue_style(
+        'gerfaut-companion-sticker-css',
+        GERFAUT_COMPANION_PLUGIN_URL . 'assets/css/sticker-builder.css',
+        array(),
+        GERFAUT_COMPANION_VERSION
+    );
+}
 
 // Activation hook
 register_activation_hook(__FILE__, 'gerfaut_companion_activate');

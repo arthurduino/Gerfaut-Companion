@@ -1,0 +1,35 @@
+.gerfaut-sticker-form {
+    border: 1px solid #ddd;
+    padding: 14px;
+    max-width: 600px;
+    background: #fff;
+}
+
+.gerfaut-sticker-form p {
+    margin: 0 0 10px;
+}
+
+.gerfaut-sticker-form input,
+.gerfaut-sticker-form select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #bbb;
+}
+
+.gerfaut-sticker-preview {
+    margin-top: 12px;
+    border: 1px dashed #bbb;
+    padding: 10px;
+    background-color: #f8f8f8;
+}
+
+.gerfaut-sticker-preview img {
+    max-width: 100%;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.sticker-threshold-value {
+    margin: 0 0 10px;
+    font-weight: 600;
+}

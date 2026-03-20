@@ -41,6 +41,7 @@ class Gerfaut_Companion_Orders_Columns {
                 $new_columns['gerfaut_tracking'] = __('Suivi', 'gerfaut-companion');
                 $new_columns['gerfaut_flags'] = __('Drapeaux', 'gerfaut-companion');
                 $new_columns['gerfaut_sav'] = __('SAV', 'gerfaut-companion');
+                $new_columns['gerfaut_sticker'] = __('Sticker', 'gerfaut-companion');
             }
         }
         
@@ -146,6 +147,22 @@ class Gerfaut_Companion_Orders_Columns {
                 } else {
                     echo '<span class="gerfaut-na">—</span>';
                 }
+                break;
+
+            case 'gerfaut_sticker':
+                $sticker_items = get_post_meta($order->get_id(), '_gerfaut_sticker_items', true);
+                if ($sticker_items) {
+                    $decoded = json_decode($sticker_items, true);
+                    if (!empty($decoded) && is_array($decoded)) {
+                        $items = [];
+                        foreach ($decoded as $item) {
+                            $items[] = esc_html(($item['width'] ?? '') . 'x' . ($item['height'] ?? '') . 'mm x ' . ($item['quantity'] ?? 1));
+                        }
+                        echo '<span class="gerfaut-sticker-badge">' . implode(', ', $items) . '</span>';
+                        break;
+                    }
+                }
+                echo '<span class="gerfaut-na">—</span>';
                 break;
         }
     }

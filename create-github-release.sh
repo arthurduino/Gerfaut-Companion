@@ -3,24 +3,28 @@
 # GitHub Release Creation Script
 # Creates a release on GitHub using the GitHub API
 
-VERSION="v1.3.12"
+VERSION="v1.3.17"
 REPO="arthurduino/Gerfaut-Companion"
-ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.12.zip"
+ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.17.zip"
 
-RELEASE_NOTES="## ✨ Nouveautés : Meilleur suivi de commande
+RELEASE_NOTES="## ✨ Nouveautés : Custom Stickers v1
 
 ### Changements
-- Amélioration du suivi de commande : les liens sont maintenant récupérés depuis **config/carriers.json** (support multi-transporteurs)
+- Ajout de la fonction Custom Stickers v1 dans Gerfaut Companion
+- Intégration du builder niveau commande, restitution sur les lignes de panier et commandes
+- Synchronisation des commandes stickers vers l’endpoint Laravel configuré
 
 ### Avantages
-✅ Plus de flexibilité pour les transporteurs (suivi dynamique)
+✅ Paramétrage prix et tranches de remise
+✅ Centralisation des commandes stickers
+✅ Envoi automatique à l’endpoint de production
 
 ### Compatibilité
-✅ Compatible avec les versions précédentes
-✅ Fonctionne avec les configurations existantes de suivi de transporteurs
+✅ Fonctionne avec les versions précédentes
+✅ Pas d’impact sur la livraison ou modules existants
 
 ### Notes
-- Le suivi est généré uniquement si un modèle de lien est présent dans **config/carriers.json**
+- Vérifier les options dans WooCommerce > Stickers Gerfaut
 "
 
 echo "======================================================================"

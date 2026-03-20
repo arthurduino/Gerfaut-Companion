@@ -125,7 +125,97 @@
             return null; // Rendu dynamique côté serveur
         }
     });
-    
+
+    // Bloc Sticker Personnalisé
+    registerBlockType('gerfaut/sticker-builder', {
+        title: 'Sticker personnalisé Gerfaut',
+        icon: formIcon,
+        category: 'embed',
+        attributes: {
+            productId: { type: 'number', default: 0 },
+            width: { type: 'number', default: 62 },
+            height: { type: 'number', default: 62 },
+            orientation: { type: 'string', default: 'portrait' },
+            imageUrl: { type: 'string', default: '' },
+            quantity: { type: 'number', default: 1 },
+            threshold: { type: 'number', default: 128 }
+        },
+        edit: function(props) {
+            const { attributes, setAttributes } = props;
+            const { productId, width, height, orientation, imageUrl, quantity, threshold } = attributes;
+            const ratio = (height > 0 ? (width / height).toFixed(2) : '1.00');
+            const isPortrait = orientation === 'portrait';
+
+            return el('div', { className: 'gerfaut-block-placeholder' },
+                el(InspectorControls, {},
+                    el(PanelBody, { title: 'Personnalisation Sticker' },
+                        el(TextControl, {
+                            label: 'Largeur (mm)',
+                            type: 'number',
+                            value: width,
+                            min: 10,
+                            onChange: (value) => setAttributes({ width: parseInt(value) || 62 })
+                        }),
+                        el(TextControl, {
+                            label: 'Hauteur (mm)',
+                            type: 'number',
+                            value: height,
+                            min: 10,
+                            onChange: (value) => setAttributes({ height: parseInt(value) || 62 })
+                        }),
+                        el(components.TextControl, {
+                            label: 'ID Produit WooCommerce',
+                            value: productId,
+                            type: 'number',
+                            onChange: (value) => setAttributes({ productId: parseInt(value, 10) || 0 })
+                        }),
+                        el(components.SelectControl, {
+                            label: 'Orientation',
+                            value: orientation,
+                            options: [
+                                { label: 'Portrait (62mm x Xmm)', value: 'portrait' },
+                                { label: 'Paysage (Xmm x 62mm)', value: 'landscape' }
+                            ],
+                            onChange: (value) => setAttributes({ orientation: value })
+                        }),
+                        el(TextControl, {
+                            label: 'URL de l’image de sticker',
+                            value: imageUrl,
+                            onChange: (value) => setAttributes({ imageUrl: value })
+                        }),
+                        el(TextControl, {
+                            label: 'Quantité',
+                            type: 'number',
+                            value: quantity,
+                            min: 1,
+                            onChange: (value) => setAttributes({ quantity: parseInt(value) || 1 })
+                        }),
+                        el('label', { style: { display: 'block', marginTop: '10px' } }, 'Seuil de noir (0-255)'),
+                        el('input', {
+                            type: 'range',
+                            min: 0,
+                            max: 255,
+                            value: threshold,
+                            onInput: (e) => setAttributes({ threshold: parseInt(e.target.value) })
+                        }),
+                        el('div', {}, 'Noir seuil : ' + threshold),
+                        el('p', { style: { marginTop: '10px' } }, 'Ratio objectif 62mm x Xmm : ' + ratio)
+                    )
+                ),
+                el('div', { style: { padding: '20px', background: '#f9fafb', border: '1px dashed #ccc' } },
+                    el('h4', {}, 'Formulaire de personnalisation de sticker'),
+                    imageUrl ? el('img', { src: imageUrl, style: { maxWidth: '100%', height: 'auto', marginBottom: '10px' } }) : el('div', { style: { marginBottom: '10px', color: '#666' } }, 'Aucune image fournie.'),
+                    el('p', {}, 'Dimensions : ' + width + 'mm x ' + height + 'mm (' + orientation + ')'),
+                    el('p', {}, 'Quantité : ' + quantity),
+                    el('p', {}, 'Seuil de noir : ' + threshold)
+                )
+            );
+        },
+        save: function() {
+            return null;
+        }
+    });
+
 })(
     window.wp.blocks,
     window.wp.element,
