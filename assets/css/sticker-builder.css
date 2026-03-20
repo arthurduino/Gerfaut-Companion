@@ -1,35 +1,46 @@
 .gerfaut-sticker-form {
-    border: 1px solid #ddd;
-    padding: 14px;
-    max-width: 600px;
+    max-width: 640px;
     background: #fff;
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 6px;
 }
-
-.gerfaut-sticker-form p {
-    margin: 0 0 10px;
-}
-
-.gerfaut-sticker-form input,
-.gerfaut-sticker-form select {
-    width: 100%;
-    padding: 6px;
-    border: 1px solid #bbb;
-}
-
-.gerfaut-sticker-preview {
-    margin-top: 12px;
-    border: 1px dashed #bbb;
-    padding: 10px;
-    background-color: #f8f8f8;
-}
-
-.gerfaut-sticker-preview img {
-    max-width: 100%;
+.gerfaut-sticker-form label {
     display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.gerfaut-sticker-form input[type='number'], .gerfaut-sticker-form input[type='text'], .gerfaut-sticker-form select, .gerfaut-sticker-form input[type='url'] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
     margin-bottom: 10px;
 }
-
-.sticker-threshold-value {
-    margin: 0 0 10px;
-    font-weight: 600;
+.gerfaut-sticker-form .gerfaut-sticker-preview {
+    border: 1px dashed #999;
+    padding: 10px;
+    margin-top: 12px;
+    text-align: center;
+}
+.gerfaut-sticker-form .gerfaut-sticker-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 3px;
+    display: block;
+    margin: 0 auto 10px;
+}
+.gerfaut-sticker-form button[type='submit'] {
+    background: #2271b1;
+    color: #fff;
+    border: 0;
+    border-radius: 4px;
+    padding: 10px 14px;
+    cursor: pointer;
+}
+.gerfaut-sticker-form .gerfaut-sticker-upload-status {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.9em;
+    color: #555;
 }

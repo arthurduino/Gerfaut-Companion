@@ -8,23 +8,19 @@ if (!defined('ABSPATH')) {
 }
 
 class Gerfaut_Companion_Sticker_Builder {
-
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
 
-        // Cart & order hooks
         add_action('woocommerce_add_cart_item_data', array($this, 'add_sticker_data_to_cart_item'), 10, 3);
         add_filter('woocommerce_get_item_data', array($this, 'display_sticker_cart_item_data'), 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', array($this, 'save_sticker_order_item_meta'), 10, 4);
         add_action('woocommerce_checkout_update_order_meta', array($this, 'save_sticker_order_meta'));
 
-        // AJAX for adding sticker to cart
         add_action('wp_ajax_gerfaut_add_sticker_to_cart', array($this, 'ajax_add_sticker_to_cart'));
         add_action('wp_ajax_nopriv_gerfaut_add_sticker_to_cart', array($this, 'ajax_add_sticker_to_cart'));
-
-        // Push sticker order to Laravel after paiement commando
-        add_action('woocommerce_order_status_completed', array($this, 'push_sticker_order_to_laravel'), 10, 1);
+        add_action('wp_ajax_gerfaut_sticker_upload_image', array($this, 'ajax_upload_sticker_image'));
+        add_action('wp_ajax_nopriv_gerfaut_sticker_upload_image', array($this, 'ajax_upload_sticker_image'));
     }
 
     public function add_admin_menu() {
@@ -40,20 +36,26 @@ class Gerfaut_Companion_Sticker_Builder {
 
     public function register_settings() {
         register_setting('gerfaut_sticker_settings', 'gerfaut_sticker_price_per_mm');
-        register_setting('gerfaut_sticker_settings', 'gerfaut_sticker_quantity_tiers');
-        register_setting('gerfaut_sticker_settings', 'gerfaut_companion_laravel_endpoint');
-        register_setting('gerfaut_sticker_settings', 'gerfaut_companion_laravel_key');
+        register_setting('gerfaut_sticker_settings', 'gerfaut_sticker_quantities');
     }
 
     public function render_settings_page() {
         $price_per_mm = get_option('gerfaut_sticker_price_per_mm', '0.50');
-        $tiers = get_option('gerfaut_sticker_quantity_tiers', array());
-        if (!is_array($tiers)) {
-            $tiers = array();
+        $quantities = get_option('gerfaut_sticker_quantities', array(
+            array('quantity' => 100, 'discount' => 0),
+            array('quantity' => 200, 'discount' => 5),
+            array('quantity' => 300, 'discount' => 10),
+            array('quantity' => 500, 'discount' => 15),
+            array('quantity' => 1000, 'discount' => 20),
+        ));
+
+        if (!is_array($quantities)) {
+            $quantities = array();
         }
+
         ?>
         <div class="wrap">
-            <h1>Paramètres de stickers Gerfaut</h1>
+            <h1>Paramètres stickers Gerfaut</h1>
             <form method="post" action="options.php">
                 <?php settings_fields('gerfaut_sticker_settings'); ?>
                 <?php do_settings_sections('gerfaut_sticker_settings'); ?>
@@ -64,29 +66,20 @@ class Gerfaut_Companion_Sticker_Builder {
                         <td><input type="text" name="gerfaut_sticker_price_per_mm" id="gerfaut_sticker_price_per_mm" value="<?php echo esc_attr($price_per_mm); ?>" class="regular-text" /> €</td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="gerfaut_companion_laravel_endpoint">Endpoint Laravel</label></th>
-                        <td><input type="text" name="gerfaut_companion_laravel_endpoint" id="gerfaut_companion_laravel_endpoint" value="<?php echo esc_attr(get_option('gerfaut_companion_laravel_endpoint', 'https://manager.gerfaut.ovh/printer/sticker-order')); ?>" class="regular-text" /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="gerfaut_companion_laravel_key">Clef API Gerfaut</label></th>
-                        <td><input type="text" name="gerfaut_companion_laravel_key" id="gerfaut_companion_laravel_key" value="<?php echo esc_attr(get_option('gerfaut_companion_laravel_key', '')); ?>" class="regular-text" /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Tranches quantité / remise (%)</th>
+                        <th scope="row">Quantités prédéfinies</th>
                         <td>
                             <table class="widefat">
-                                <thead><tr><th>Min</th><th>Max</th><th>Réduction (%)</th></tr></thead>
-                                <tbody id="gerfaut-sticker-tiers-body">
-                                <?php foreach ($tiers as $tier) : ?>
+                                <thead><tr><th>Quantité</th><th>Réduction (%)</th></tr></thead>
+                                <tbody id="gerfaut-sticker-quantities-body">
+                                <?php foreach ($quantities as $qty) : ?>
                                     <tr>
-                                        <td><input type="number" name="gerfaut_sticker_quantity_tiers[][min]" value="<?php echo esc_attr($tier['min']); ?>" min="1" /></td>
-                                        <td><input type="number" name="gerfaut_sticker_quantity_tiers[][max]" value="<?php echo esc_attr($tier['max']); ?>" min="1" /></td>
-                                        <td><input type="number" name="gerfaut_sticker_quantity_tiers[][discount]" value="<?php echo esc_attr($tier['discount']); ?>" min="0" max="100" /></td>
+                                        <td><input type="number" name="gerfaut_sticker_quantities[][quantity]" value="<?php echo esc_attr($qty['quantity']); ?>" min="1" required /></td>
+                                        <td><input type="number" name="gerfaut_sticker_quantities[][discount]" value="<?php echo esc_attr($qty['discount']); ?>" min="0" max="100" required /></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>
                             </table>
-                            <p><button type="button" class="button" id="gerfaut-add-tier">Ajouter une tranche</button></p>
+                            <p><button type="button" class="button" id="gerfaut-add-quantity">Ajouter option</button></p>
                         </td>
                     </tr>
                 </table>
@@ -95,9 +88,9 @@ class Gerfaut_Companion_Sticker_Builder {
             </form>
         </div>
         <script>
-        (function($){
-            $('#gerfaut-add-tier').on('click', function() {
-                $('#gerfaut-sticker-tiers-body').append('<tr><td><input type="number" name="gerfaut_sticker_quantity_tiers[][min]" value="1" min="1" /></td><td><input type="number" name="gerfaut_sticker_quantity_tiers[][max]" value="10" min="1" /></td><td><input type="number" name="gerfaut_sticker_quantity_tiers[][discount]" value="0" min="0" max="100" /></td></tr>');
+        (function($) {
+            $('#gerfaut-add-quantity').on('click', function() {
+                $('#gerfaut-sticker-quantities-body').append('<tr><td><input type="number" name="gerfaut_sticker_quantities[][quantity]" value="100" min="1" required /></td><td><input type="number" name="gerfaut_sticker_quantities[][discount]" value="0" min="0" max="100" required /></td></tr>');
             });
         })(jQuery);
         </script>
@@ -105,135 +98,115 @@ class Gerfaut_Companion_Sticker_Builder {
     }
 
     public function add_sticker_data_to_cart_item($cart_item_data, $product_id, $variation_id) {
-        if (isset($_POST['gerfaut_sticker_data'])) {
-            $cart_item_data['gerfaut_sticker_data'] = wc_clean($_POST['gerfaut_sticker_data']);
-            // Unique key to force separate line items
-            $cart_item_data['unique_key'] = md5(microtime() . rand());
+        if (!empty($_POST['sticker_data']) && is_array($_POST['sticker_data'])) {
+            $sticker = array_map('sanitize_text_field', wp_unslash($_POST['sticker_data']));
+            $stickerData = array(
+                'image_url'   => esc_url_raw($sticker['image_url'] ?? ''),
+                'orientation' => in_array($sticker['orientation'] ?? 'portrait', array('portrait','landscape')) ? $sticker['orientation'] : 'portrait',
+                'dimen'       => max(10, floatval($sticker['dimen'] ?? 62)),
+                'quantity'    => intval($sticker['quantity'] ?? 1),
+                'threshold'   => min(255, max(0, intval($sticker['threshold'] ?? 128))),
+            );
+
+            if ($stickerData['orientation'] === 'portrait') {
+                $stickerData['width'] = 62;
+                $stickerData['height'] = $stickerData['dimen'];
+            } else {
+                $stickerData['height'] = 62;
+                $stickerData['width'] = $stickerData['dimen'];
+            }
+
+            $allowedQuantities = wp_list_pluck(get_option('gerfaut_sticker_quantities', array()), 'quantity');
+            if (!in_array($stickerData['quantity'], $allowedQuantities, true)) {
+                $stickerData['quantity'] = intval($allowedQuantities ? $allowedQuantities[0] : 1);
+            }
+
+            $cart_item_data['gerfaut_sticker_data'] = $stickerData;
+            $cart_item_data['unique_key'] = md5(microtime() . rand(0, 999999));
         }
+
         return $cart_item_data;
     }
 
     public function display_sticker_cart_item_data($item_data, $cart_item) {
-        if (!empty($cart_item['gerfaut_sticker_data']) && is_array($cart_item['gerfaut_sticker_data'])) {
+        if (!empty($cart_item['gerfaut_sticker_data'])) {
             $data = $cart_item['gerfaut_sticker_data'];
-            $item_data[] = array('key' => 'Sticker image', 'value' => esc_html($data['image_url'] ?? ''));            
-            $item_data[] = array('key' => 'Dimensions', 'value' => esc_html(($data['width'] ?? '') . 'x' . ($data['height'] ?? '') . 'mm'));
-            $item_data[] = array('key' => 'Orientation', 'value' => esc_html($data['orientation'] ?? 'portrait'));
-            $item_data[] = array('key' => 'Seuil noir', 'value' => esc_html($data['threshold'] ?? 128));
+            $item_data[] = array('key' => 'Sticker', 'value' => sprintf('Dimensions %s x %s mm, Qté %s', esc_html($data['width']), esc_html($data['height']), esc_html($data['quantity'])));
+            $item_data[] = array('key' => 'Seuil noir', 'value' => esc_html($data['threshold']));
         }
-
         return $item_data;
     }
 
     public function save_sticker_order_item_meta($item, $cart_item_key, $values, $order) {
         if (!empty($values['gerfaut_sticker_data'])) {
-            $sticker_data = $values['gerfaut_sticker_data'];
-            if (is_array($sticker_data)) {
-                $item->add_meta_data('_gerfaut_sticker_data', wp_json_encode($sticker_data), true);
-            }
+            $item->add_meta_data('_gerfaut_sticker_data', wp_json_encode($values['gerfaut_sticker_data']), true);
         }
     }
 
     public function save_sticker_order_meta($order_id) {
-        if (!WC()->cart) {
-            return;
-        }
-
         $sticker_items = array();
-        foreach (WC()->cart->get_cart() as $cart_item) {
-            if (!empty($cart_item['gerfaut_sticker_data'])) {
-                $sticker_items[] = $cart_item['gerfaut_sticker_data'];
+        if (WC()->cart) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                if (!empty($cart_item['gerfaut_sticker_data'])) {
+                    $sticker_items[] = $cart_item['gerfaut_sticker_data'];
+                }
             }
         }
 
-        if (!empty($sticker_items)) {
+        if ($sticker_items) {
             update_post_meta($order_id, '_gerfaut_sticker_items', wp_json_encode($sticker_items));
         }
     }
 
-    public function push_sticker_order_to_laravel($order_id) {
-        $order = wc_get_order($order_id);
-        if (!$order) {
-            return;
+    public function ajax_add_sticker_to_cart() {
+        $product_id = intval($_POST['product_id'] ?? 0);
+        $sticker_data = $_POST['sticker_data'] ?? array();
+
+        if (!$product_id || empty($sticker_data['image_url'])) {
+            wp_send_json_error('Produit ou image invalide');
         }
 
-        $sticker_items_meta = get_post_meta($order_id, '_gerfaut_sticker_items', true);
-        $sticker_items = array();
+        $_POST['sticker_data'] = $sticker_data;
+        $result = $this->add_sticker_data_to_cart_item(array(), $product_id, 0);
 
-        if (!empty($sticker_items_meta)) {
-            $sticker_items = json_decode($sticker_items_meta, true);
+        if (WC()->cart->add_to_cart($product_id, intval($sticker_data['quantity']), 0, array(), array('gerfaut_sticker_data' => $result['gerfaut_sticker_data'], 'unique_key' => $result['unique_key']))) {
+            wp_send_json_success(array('redirect' => wc_get_cart_url()));
         }
 
-        if (empty($sticker_items)) {
-            return;
-        }
-
-        $api_url = get_option('gerfaut_companion_laravel_endpoint', 'https://manager.gerfaut.ovh/printer/sticker-order');
-        $api_key = get_option('gerfaut_companion_laravel_key', '');
-
-        $payload = array(
-            'order_id' => $order_id,
-            'order_number' => $order->get_order_number(),
-            'customer_email' => $order->get_billing_email(),
-            'sticker_items' => $sticker_items,
-            'total' => $order->get_total(),
-        );
-
-        $args = array(
-            'headers' => array(
-                'Content-Type' => 'application/json',
-                'X-Gerfaut-API-Key' => $api_key,
-            ),
-            'body' => wp_json_encode($payload),
-            'timeout' => 30,
-        );
-
-        $response = wp_remote_post($api_url, $args);
-
-        if (is_wp_error($response)) {
-            update_post_meta($order_id, '_gerfaut_sticker_sync_status', 'error:' . $response->get_error_message());
-            return;
-        }
-
-        $code = wp_remote_retrieve_response_code($response);
-        if ($code >= 200 && $code < 300) {
-            update_post_meta($order_id, '_gerfaut_sticker_sync_status', 'sent');
-        } else {
-            update_post_meta($order_id, '_gerfaut_sticker_sync_status', 'error:' . $code);
-        }
+        wp_send_json_error('Ajout au panier échoué');
     }
 
-    public function ajax_add_sticker_to_cart() {
-        if (!isset($_POST['product_id']) || !isset($_POST['sticker_data'])) {
-            wp_send_json_error('Données manquantes');
+    public function ajax_upload_sticker_image() {
+        if (empty($_FILES['sticker_image'])) {
+            wp_send_json_error('Aucun fichier');
         }
 
-        $product_id = intval($_POST['product_id']);
-        $sticker_data = $_POST['sticker_data'];
+        $file = $_FILES['sticker_image'];
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
 
-        // Cleanup
-        $sticker_data = array(
-            'image_url' => esc_url_raw($sticker_data['image_url'] ?? ''),
-            'width' => floatval($sticker_data['width'] ?? 62),
-            'height' => floatval($sticker_data['height'] ?? 62),
-            'orientation' => sanitize_text_field($sticker_data['orientation'] ?? 'portrait'),
-            'quantity' => intval($sticker_data['quantity'] ?: 1),
-            'threshold' => intval($sticker_data['threshold'] ?? 128),
+        $upload = wp_handle_upload($file, array('test_form' => false));
+        if (isset($upload['error'])) {
+            wp_send_json_error($upload['error']);
+        }
+
+        $attachment = array(
+            'post_mime_type' => $upload['type'],
+            'post_title'     => sanitize_file_name($file['name']),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
         );
 
-        if ($sticker_data['quantity'] < 1) {
-            $sticker_data['quantity'] = 1;
+        $attach_id = wp_insert_attachment($attachment, $upload['file']);
+
+        if (!is_wp_error($attach_id)) {
+            $attach_data = wp_generate_attachment_metadata($attach_id, $upload['file']);
+            wp_update_attachment_metadata($attach_id, $attach_data);
+            wp_send_json_success(array('url' => wp_get_attachment_url($attach_id)));
         }
 
-        $cart_item_data = array('gerfaut_sticker_data' => $sticker_data);
-
-        $added = WC()->cart->add_to_cart($product_id, $sticker_data['quantity'], 0, array(), $cart_item_data);
-
-        if (!$added) {
-            wp_send_json_error('Impossible d’ajouter au panier');
-        }
-
-        wp_send_json_success(array('redirect' => wc_get_cart_url()));
+        wp_send_json_error('Impossible d’insérer l’image');
     }
 }
 

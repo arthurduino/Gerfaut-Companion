@@ -8,61 +8,86 @@ if (!defined('ABSPATH')) {
 }
 
 class Gerfaut_Embed_Shortcodes {
-    
-    private static $script_loaded = false;
-    
+
     public function __construct() {
         add_shortcode('gerfaut_sav', array($this, 'render_sav_form'));
         add_shortcode('gerfaut_contact', array($this, 'render_contact_form'));
         add_shortcode('gerfaut_sticker', array($this, 'render_sticker_form'));
     }
-    
-    /**
-     * Rendu du formulaire SAV
-     */
+
     public function render_sav_form($atts) {
-        $atts = shortcode_atts(array(
-            'site_url' => site_url(),
-            'height' => 'auto',
-        ), $atts);
-        
+        $atts = shortcode_atts(array('site_url' => site_url(),'height' => 'auto'), $atts);
         return $this->render_embed_container('sav', $atts);
     }
-    
-    /**
-     * Rendu du formulaire de contact
-     */
+
     public function render_contact_form($atts) {
-        $atts = shortcode_atts(array(
-            'site_url' => site_url(),
-            'height' => 'auto',
-        ), $atts);
-        
+        $atts = shortcode_atts(array('site_url' => site_url(),'height' => 'auto'), $atts);
         return $this->render_embed_container('contact', $atts);
     }
 
-    /**
-     * Rendu du formulaire sticker
-     */
     public function render_sticker_form($atts) {
         $atts = shortcode_atts(array(
-            'height' => 'auto',
+            'product_id' => 0,
+            'orientation' => 'portrait',
+            'dimen' => 62,
         ), $atts);
 
-        return $this->render_embed_container('sticker', $atts);
+        wp_enqueue_script('gerfaut-companion-sticker');
+        wp_enqueue_style('gerfaut-companion-sticker-css');
+
+        ob_start();
+        ?>
+        <form class="gerfaut-sticker-form" data-product-id="<?php echo esc_attr($atts['product_id']); ?>">
+            <input type="hidden" name="sticker_image_url" value="" />
+            <div>
+                <label for="sticker_file">Upload image sticker (PNG/JPG)</label>
+                <input type="file" name="sticker_file" accept="image/png,image/jpeg" />
+                <span class="gerfaut-sticker-upload-status"></span>
+            </div>
+            <div>
+                <label for="sticker_orientation">Orientation</label>
+                <select name="sticker_orientation">
+                    <option value="portrait" <?php selected($atts['orientation'], 'portrait'); ?>>Portrait (62mm de largeur)</option>
+                    <option value="landscape" <?php selected($atts['orientation'], 'landscape'); ?>>Paysage (62mm de hauteur)</option>
+                </select>
+            </div>
+            <div>
+                <label class="sticker-dimen-label"><?php echo $atts['orientation'] === 'portrait' ? 'Hauteur (mm, largeur 62mm fixe)' : 'Largeur (mm, hauteur 62mm fixe)'; ?></label>
+                <input type="number" name="sticker_dimen" value="<?php echo esc_attr($atts['dimen']); ?>" min="10" required />
+            </div>
+            <div>
+                <label for="sticker_quantity">Quantité</label>
+                <select name="sticker_quantity">
+                    <?php $quantities = get_option('gerfaut_sticker_quantities', array(100, 200, 300, 500, 1000)); ?>
+                    <?php foreach ($quantities as $qty) : ?>
+                        <option value="<?php echo esc_attr($qty); ?>"><?php echo esc_html($qty); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label for="sticker_threshold">Seuil de noir</label>
+                <input type="range" name="sticker_threshold" min="0" max="255" value="128" />
+                <div class="gerfaut-sticker-preview-threshold">Seuil noir : 128</div>
+            </div>
+            <div class="gerfaut-sticker-preview">
+                <img class="gerfaut-sticker-preview-image" src="" style="display:none;" />
+                <p class="gerfaut-sticker-preview-size">Dimensions prévues</p>
+                <p class="gerfaut-sticker-preview-quantity">Quantité</p>
+                <p class="gerfaut-sticker-preview-threshold">Seuil noir</p>
+            </div>
+            <button type="submit">Ajouter au panier</button>
+        </form>
+        <?php
+        return ob_get_clean();
     }
-    
-    /**
-     * Génère le conteneur d'intégration
-     */
+
     private function render_embed_container($form_type, $atts) {
         $container_id = 'gerfaut-embed-container';
-        
         $style = '';
         if ($atts['height'] !== 'auto') {
             $style = sprintf(' style="min-height: %s;"', esc_attr($atts['height']));
         }
-        
+
         $output = sprintf(
             '<div id="%s" class="gerfaut-embed-container" data-form="%s" data-site-url="%s"%s></div>',
             esc_attr($container_id),
@@ -70,16 +95,14 @@ class Gerfaut_Embed_Shortcodes {
             esc_url($atts['site_url']),
             $style
         );
-        
-        // Charger le script une seule fois par page
+
         if (!self::$script_loaded) {
             $output .= '<script src="https://manager.gerfaut.ovh/embed.js" defer></script>';
             self::$script_loaded = true;
         }
-        
+
         return $output;
     }
 }
 
-// Initialiser les shortcodes
 new Gerfaut_Embed_Shortcodes();
