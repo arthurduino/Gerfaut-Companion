@@ -3,27 +3,27 @@
 # GitHub Release Creation Script
 # Creates a release on GitHub using the GitHub API
 
-VERSION="v1.3.18"
+VERSION="v1.3.19"
 REPO="arthurduino/Gerfaut-Companion"
-ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.18.zip"
+ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.19.zip"
 
-RELEASE_NOTES="## ✨ Custom Stickers v1.01
+RELEASE_NOTES="## ✨ Custom Stickers v1.02
 
 ### Changements
-- Améliorations du builder de stickers (stabilité, validation et UX)
-- Amélioration du mapping des métas produits vers le panier
-- Meilleure résistance aux champs invalides (orientation/largeur/hauteur)
+- Prise en charge du mode charge utile JSON enrichi
+- Amélioration des validations fiche produit / taille en mm
+- Correctifs affichage panier pour grandes quantités
 
 ### Avantages
-✅ Moins de bugs de chargement au checkout
-✅ Meilleure reprise en cas d’erreur de payload
-✅ Traitement des commandes stickers plus fiable
+✅ UX plus fluide en commande sticker
+✅ Meilleur dégradé sur erreur de saisie
+✅ Nettoyage best-effort du cart_item_data
 
 ### Compatibilité
 ✅ Compatible avec v1.3.x
 
 ### Notes
-- Ce correctif est rétrocompatible avec l’ancien mécanisme de commande stickers
+- Points de configuration restés identiques (WooCommerce > Stickers Gerfaut)
 "
 
 echo "======================================================================"

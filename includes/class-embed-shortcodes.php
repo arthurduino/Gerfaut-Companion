@@ -39,43 +39,51 @@ class Gerfaut_Embed_Shortcodes {
         ?>
         <form class="gerfaut-sticker-form" data-product-id="<?php echo esc_attr($atts['product_id']); ?>">
             <input type="hidden" name="sticker_image_url" value="" />
-            <div>
-                <label for="sticker_file">Upload image sticker (PNG/JPG)</label>
-                <input type="file" name="sticker_file" accept="image/png,image/jpeg" />
-                <span class="gerfaut-sticker-upload-status"></span>
+            <div class="gerfaut-sticker-builder-grid">
+                <div class="gerfaut-sticker-preview-col">
+                    <canvas class="gerfaut-sticker-preview-canvas" width="320" height="320"></canvas>
+                    <div class="gerfaut-sticker-preview-meta">
+                        <p class="gerfaut-sticker-preview-size">Dimensions prévues</p>
+                        <p class="gerfaut-sticker-preview-quantity">Quantité</p>
+                        <p class="gerfaut-sticker-preview-threshold">Seuil noir</p>
+                    </div>
+                </div>
+                <div class="gerfaut-sticker-options-col">
+                    <div>
+                        <label for="sticker_file">Upload image sticker (PNG/JPG)</label>
+                        <input type="file" name="sticker_file" accept="image/png,image/jpeg" />
+                        <span class="gerfaut-sticker-upload-status"></span>
+                    </div>
+                    <div>
+                        <label for="sticker_orientation">Orientation</label>
+                        <select name="sticker_orientation">
+                            <option value="portrait" <?php selected($atts['orientation'], 'portrait'); ?>>Portrait (62mm largeur)</option>
+                            <option value="landscape" <?php selected($atts['orientation'], 'landscape'); ?>>Paysage (62mm hauteur)</option>
+                        </select>
+                        <button class="button gerfaut-toggle-orientation" style="margin-top:8px;">Basculer orientation</button>
+                    </div>
+                    <div>
+                        <label class="sticker-dimen-label"><?php echo $atts['orientation'] === 'portrait' ? 'Hauteur (mm, largeur 62mm fixe)' : 'Largeur (mm, hauteur 62mm fixe)'; ?></label>
+                        <input type="number" name="sticker_dimen" value="<?php echo esc_attr($atts['dimen']); ?>" min="10" required />
+                    </div>
+                    <div>
+                        <label for="sticker_quantity">Quantité</label>
+                        <select name="sticker_quantity">
+                            <?php $quantities = get_option('gerfaut_sticker_quantities', array(100, 200, 300, 500, 1000)); ?>
+                            <?php foreach ($quantities as $qty) : ?>
+                                <option value="<?php echo esc_attr($qty); ?>"><?php echo esc_html($qty); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sticker_threshold">Seuil de noir</label>
+                        <input type="range" name="sticker_threshold" min="0" max="255" value="128" />
+                    </div>
+                    <div>
+                        <button type="submit" class="button button-primary">Ajouter au panier</button>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label for="sticker_orientation">Orientation</label>
-                <select name="sticker_orientation">
-                    <option value="portrait" <?php selected($atts['orientation'], 'portrait'); ?>>Portrait (62mm de largeur)</option>
-                    <option value="landscape" <?php selected($atts['orientation'], 'landscape'); ?>>Paysage (62mm de hauteur)</option>
-                </select>
-            </div>
-            <div>
-                <label class="sticker-dimen-label"><?php echo $atts['orientation'] === 'portrait' ? 'Hauteur (mm, largeur 62mm fixe)' : 'Largeur (mm, hauteur 62mm fixe)'; ?></label>
-                <input type="number" name="sticker_dimen" value="<?php echo esc_attr($atts['dimen']); ?>" min="10" required />
-            </div>
-            <div>
-                <label for="sticker_quantity">Quantité</label>
-                <select name="sticker_quantity">
-                    <?php $quantities = get_option('gerfaut_sticker_quantities', array(100, 200, 300, 500, 1000)); ?>
-                    <?php foreach ($quantities as $qty) : ?>
-                        <option value="<?php echo esc_attr($qty); ?>"><?php echo esc_html($qty); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label for="sticker_threshold">Seuil de noir</label>
-                <input type="range" name="sticker_threshold" min="0" max="255" value="128" />
-                <div class="gerfaut-sticker-preview-threshold">Seuil noir : 128</div>
-            </div>
-            <div class="gerfaut-sticker-preview">
-                <img class="gerfaut-sticker-preview-image" src="" style="display:none;" />
-                <p class="gerfaut-sticker-preview-size">Dimensions prévues</p>
-                <p class="gerfaut-sticker-preview-quantity">Quantité</p>
-                <p class="gerfaut-sticker-preview-threshold">Seuil noir</p>
-            </div>
-            <button type="submit">Ajouter au panier</button>
         </form>
         <?php
         return ob_get_clean();

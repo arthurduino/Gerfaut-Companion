@@ -8,22 +8,59 @@
     function updatePreview($form) {
         var imageUrl = $form.find('input[name="sticker_image_url"]').val();
         var threshold = parseInt($form.find('input[name="sticker_threshold"]').val() || 128, 10);
-        var w = parseFloat($form.find('input[name="sticker_dimen"]').val() || 62);
+        var dimen = parseFloat($form.find('input[name="sticker_dimen"]').val() || 62);
         var orientation = $form.find('select[name="sticker_orientation"]').val();
         var quantity = parseInt($form.find('select[name="sticker_quantity"]').val(), 10);
-        var fixed = (orientation === 'portrait') ? '62mm x ' + w + 'mm' : w + 'mm x 62mm';
 
+        if (orientation === 'portrait') {
+            $form.find('.sticker-dimen-label').text('Hauteur (mm, largeur 62mm fixe)');
+        } else {
+            $form.find('.sticker-dimen-label').text('Largeur (mm, hauteur 62mm fixe)');
+        }
+
+        var fixed = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
         $form.find('.gerfaut-sticker-preview-size').text('Dimensions prévues : ' + fixed);
         $form.find('.gerfaut-sticker-preview-quantity').text('Quantité : ' + quantity);
         $form.find('.gerfaut-sticker-preview-threshold').text('Seuil noir : ' + threshold);
 
+        var $canvas = $form.find('.gerfaut-sticker-preview-canvas');
         var $img = $form.find('.gerfaut-sticker-preview-image');
+
         if (imageUrl) {
-            $img.attr('src', imageUrl).show();
-            var contrast = 100 + (threshold - 128) / 128 * 100; // approximation
-            $img.css('filter', 'grayscale(1) contrast(' + Math.max(0, contrast) + '%)');
+            $img.off('load.preview').on('load.preview', function() {
+                var img = this;
+                var cw = Math.min(320, img.naturalWidth);
+                var ch = Math.min(320, img.naturalHeight);
+                $canvas.attr({ width: cw, height: ch });
+                var ctx = $canvas[0].getContext('2d');
+                ctx.drawImage(img, 0, 0, cw, ch);
+
+                var imgData = ctx.getImageData(0, 0, cw, ch);
+                var data = imgData.data;
+                for (var i = 0; i < data.length; i += 4) {
+                    var r = data[i];
+                    var g = data[i + 1];
+                    var b = data[i + 2];
+                    var gray = Math.round((r + g + b) / 3);
+                    data[i] = data[i + 1] = data[i + 2] = (gray >= threshold ? 255 : 0);
+                }
+                ctx.putImageData(imgData, 0, 0);
+
+                var naturalW = img.naturalWidth;
+                var naturalH = img.naturalHeight;
+                var target = (orientation === 'portrait') ? 62 / naturalW : 62 / naturalH;
+                if (!isNaN(target) && isFinite(target)) {
+                    dimen = (orientation === 'portrait') ? naturalH * target : naturalW * target;
+                    dimen = Math.max(10, Math.round(dimen));
+                    $form.find('input[name="sticker_dimen"]').val(dimen);
+                    var fixed2 = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
+                    $form.find('.gerfaut-sticker-preview-size').text('Dimensions prévues : ' + fixed2 + ' (ajustées en fonction image)');
+                }
+            }).attr('src', imageUrl).show();
+            $canvas.show();
         } else {
             $img.hide();
+            $canvas.hide();
         }
     }
 
@@ -87,6 +124,13 @@
                 }
             });
 
+            $form.on('click', '.gerfaut-toggle-orientation', function(e) {
+                e.preventDefault();
+                var current = $form.find('select[name="sticker_orientation"]').val();
+                var next = current === 'portrait' ? 'landscape' : 'portrait';
+                $form.find('select[name="sticker_orientation"]').val(next).trigger('change');
+            });
+
             $form.on('submit', function(e) {
                 e.preventDefault();
 
@@ -126,9 +170,14 @@
                     if (response && response.success) {
                         window.location.href = response.data.redirect || window.location.href;
                     } else {
-                        showError('Impossible d’ajouter le sticker au panier.');
+                        console.error('Add to cart error:', response);
+                        var msg = response && response.data ? response.data : 'Impossible d’ajouter le sticker au panier.';
+                        showError(msg);
                     }
-                }, 'json');
+                }, 'json').fail(function(xhr, status, error) {
+                    console.error('AJAX add to cart failed', status, error, xhr.responseText);
+                    showError('Erreur réseau lors de l’ajout au panier.');
+                });
             });
 
             updatePreview($form);

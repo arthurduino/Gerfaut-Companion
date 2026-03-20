@@ -1,9 +1,28 @@
 .gerfaut-sticker-form {
-    max-width: 640px;
+    max-width: 960px;
     background: #fff;
     border: 1px solid #ddd;
     padding: 16px;
     border-radius: 6px;
+}
+.gerfaut-sticker-builder-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+.gerfaut-sticker-preview-col, .gerfaut-sticker-options-col {
+    background: #fbfbfb;
+    padding: 12px;
+    border-radius: 6px;
+}
+.gerfaut-sticker-preview-canvas {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    margin-bottom: 10px;
 }
 .gerfaut-sticker-form label {
     display: block;
