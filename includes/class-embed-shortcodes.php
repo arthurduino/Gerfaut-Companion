@@ -37,51 +37,65 @@ class Gerfaut_Embed_Shortcodes {
 
         ob_start();
         ?>
-        <form class="gerfaut-sticker-form" data-product-id="<?php echo esc_attr($atts['product_id']); ?>">
+        <form class="gerfaut-sticker-form" data-product-id="<?php echo esc_attr($atts['product_id']); ?>" data-price-per-mm="<?php echo esc_attr(get_option('gerfaut_sticker_price_per_mm', '0.50')); ?>">
+            <input type="hidden" name="product_id" value="<?php echo esc_attr($atts['product_id']); ?>" />
             <input type="hidden" name="sticker_image_url" value="" />
+            <input type="hidden" name="sticker_price" value="0" />
             <div class="gerfaut-sticker-builder-grid">
                 <div class="gerfaut-sticker-preview-col">
-                    <canvas class="gerfaut-sticker-preview-canvas" width="320" height="320"></canvas>
-                    <div class="gerfaut-sticker-preview-meta">
-                        <p class="gerfaut-sticker-preview-size">Dimensions prévues</p>
-                        <p class="gerfaut-sticker-preview-quantity">Quantité</p>
-                        <p class="gerfaut-sticker-preview-threshold">Seuil noir</p>
+                    <h2 class="gerfaut-sticker-title">CONFIGURATION DES STICKERS</h2>
+                    <div class="gerfaut-sticker-hero">
+                        <canvas class="gerfaut-sticker-preview-canvas" width="320" height="320"></canvas>
+                        <div class="gerfaut-sticker-dimensions">
+                            <span class="gerfaut-sticker-size-x">↔ <span id="sticker_width_text">62</span> mm</span>
+                            <span class="gerfaut-sticker-size-y">↕ <span id="sticker_height_text"><?php echo esc_html($atts['dimen']); ?></span> mm</span>
+                        </div>
+                    </div>
+                    <div class="gerfaut-sticker-preview-status">
+                        <p class="gerfaut-sticker-preview-price">Prix total : -</p>
+                        <p class="gerfaut-sticker-preview-quantity">Quantité : -</p>
+                        <p class="gerfaut-sticker-preview-threshold">Seuil noir : -</p>
                     </div>
                 </div>
                 <div class="gerfaut-sticker-options-col">
-                    <div>
-                        <label for="sticker_file">Upload image sticker (PNG/JPG)</label>
-                        <input type="file" name="sticker_file" accept="image/png,image/jpeg" />
+                    <h3 class="gerfaut-step-title">1. Téléchargement</h3>
+                    <div class="gerfaut-drop-zone" id="gerfaut-drop-zone">
+                        <p class="gerfaut-drop-text">Glissez-déposez votre image ou cliquez pour parcourir</p>
+                        <input type="file" name="sticker_file" accept="image/png,image/jpeg" class="gerfaut-drop-input" />
                         <span class="gerfaut-sticker-upload-status"></span>
+                        <div class="gerfaut-upload-progress-bar" style="display:none;"><div class="gerfaut-upload-progress"><span></span></div></div>
                     </div>
-                    <div>
-                        <label for="sticker_orientation">Orientation</label>
-                        <select name="sticker_orientation">
-                            <option value="portrait" <?php selected($atts['orientation'], 'portrait'); ?>>Portrait (62mm largeur)</option>
-                            <option value="landscape" <?php selected($atts['orientation'], 'landscape'); ?>>Paysage (62mm hauteur)</option>
-                        </select>
-                        <button class="button gerfaut-toggle-orientation" style="margin-top:8px;">Basculer orientation</button>
+
+                    <h3 class="gerfaut-step-title">2. Configuration technique</h3>
+                    <div class="gerfaut-segmented-control" role="group" aria-label="Orientation">
+                        <button type="button" class="gerfaut-segment-button" data-value="portrait">Portrait</button>
+                        <button type="button" class="gerfaut-segment-button" data-value="landscape">Paysage</button>
                     </div>
-                    <div>
-                        <label class="sticker-dimen-label"><?php echo $atts['orientation'] === 'portrait' ? 'Hauteur (calculée à partir de l’image, largeur 62mm fixe)' : 'Largeur (calculée à partir de l’image, hauteur 62mm fixe)'; ?></label>
+                    <input type="hidden" name="sticker_orientation" value="<?php echo esc_attr($atts['orientation']); ?>" />
+
+                    <div class="gerfaut-control-row">
+                        <label>Dimensions calculées</label>
+                        <p class="gerfaut-sticker-dimen-short" id="sticker_dimen_text"><?php echo esc_html($atts['dimen']); ?> mm</p>
                         <input type="hidden" name="sticker_dimen" value="<?php echo esc_attr($atts['dimen']); ?>" />
-                        <p id="sticker_dimen_text"><?php echo esc_html($atts['dimen']); ?> mm</p>
                     </div>
-                    <div>
-                        <label for="sticker_quantity">Quantité</label>
-                        <select name="sticker_quantity">
+
+                    <h3 class="gerfaut-step-title">3. Quantité & qualité</h3>
+                    <label for="sticker_quantity">Quantité</label>
+                    <select name="sticker_quantity">
                             <?php $quantities = get_option('gerfaut_sticker_quantities', array(100, 200, 300, 500, 1000)); ?>
                             <?php foreach ($quantities as $qty) : ?>
                                 <?php
                                 if (is_array($qty) && isset($qty['quantity'])) {
                                     $value = intval($qty['quantity']);
-                                    $label = $value . ' (réduction ' . intval($qty['discount'] ?? 0) . '%)';
+                                    $discount = floatval($qty['discount'] ?? 0);
+                                    $label = $value . ' (réduction ' . intval($discount) . '%)';
                                 } else {
                                     $value = intval($qty);
+                                    $discount = 0;
                                     $label = $value;
                                 }
                                 ?>
-                                <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                                <option value="<?php echo esc_attr($value); ?>" data-discount="<?php echo esc_attr($discount); ?>"><?php echo esc_html($label); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

@@ -3,27 +3,27 @@
 # GitHub Release Creation Script
 # Creates a release on GitHub using the GitHub API
 
-VERSION="v1.3.21"
+VERSION="v1.3.22"
 REPO="arthurduino/Gerfaut-Companion"
-ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.21.zip"
+ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.22.zip"
 
-RELEASE_NOTES="## ✨ Custom Stickers v1.04
+RELEASE_NOTES="## ✨ Custom Stickers v1.05
 
 ### Changements
-- Ajout option limite maximale (width/height) pour sécuriser l'upload
-- Amélioration des messages d'erreur via `wc_add_notice`
-- Nettoyage JS et suppression de code mort
+- Ajout d'une validation serveur du paramètre `threshold` (0-255)
+- Harmonisation des sauvegardes meta avec prefixe `_gerfaut_`
+- Amélioration du log d'export pour Laravel
 
 ### Avantages
-✅ Meilleure protection UX 
-✅ Moins d'inputs invalides
-✅ Contrôle de qualité renforcé
+✅ Moins de données corrompues en base
+✅ Meilleure compatibilité multilingue
+✅ Report d'erreur précis
 
 ### Compatibilité
 ✅ Compatible avec v1.3.x
 
 ### Notes
-- Ne modifie pas le comportement back-office.
+- Le test de webhook sticker doit être ré-exécuté après mise à jour
 "
 
 echo "======================================================================"

@@ -2,11 +2,11 @@
 /**
  * Plugin Name: Gerfaut Companion
  * Description: Extension compagnon pour afficher des informations sur le dashboard WordPress et la liste des commandes WooCommerce. Inclut les shortcodes [gerfaut_sav], [gerfaut_contact], [gerfaut_sticker] pour intégrer les formulaires.
- * Version: 1.3.21
+ * Version: 1.3.22
  * Author: Gerfaut
  */
 
-define('GERFAUT_COMPANION_VERSION', '1.3.21');
+define('GERFAUT_COMPANION_VERSION', '1.3.22');
 define('GERFAUT_COMPANION_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GERFAUT_COMPANION_PLUGIN_URL', plugin_dir_url(__FILE__));
 

@@ -16,6 +16,7 @@ class Gerfaut_Companion_Sticker_Builder {
         add_filter('woocommerce_get_item_data', array($this, 'display_sticker_cart_item_data'), 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', array($this, 'save_sticker_order_item_meta'), 10, 4);
         add_action('woocommerce_checkout_update_order_meta', array($this, 'save_sticker_order_meta'));
+        add_action('woocommerce_before_calculate_totals', array($this,'apply_sticker_cart_price'), 20, 1);
 
         add_action('wp_ajax_gerfaut_add_sticker_to_cart', array($this, 'ajax_add_sticker_to_cart'));
         add_action('wp_ajax_nopriv_gerfaut_add_sticker_to_cart', array($this, 'ajax_add_sticker_to_cart'));
@@ -117,9 +118,38 @@ class Gerfaut_Companion_Sticker_Builder {
             }
 
             $allowedQuantities = wp_list_pluck(get_option('gerfaut_sticker_quantities', array()), 'quantity');
+            $quantitiesMeta = get_option('gerfaut_sticker_quantities', array());
+            $discount = 0;
+            foreach ($quantitiesMeta as $config) {
+                if (isset($config['quantity']) && intval($config['quantity']) === $stickerData['quantity']) {
+                    $discount = floatval($config['discount'] ?? 0);
+                    break;
+                }
+            }
+            $stickerData['discount'] = $discount;
+
             if (!in_array($stickerData['quantity'], $allowedQuantities, true)) {
                 $stickerData['quantity'] = intval($allowedQuantities ? $allowedQuantities[0] : 1);
             }
+
+            // Recalc discount after normalization quatity
+            $discount = 0;
+            foreach ($quantitiesMeta as $config) {
+                if (isset($config['quantity']) && intval($config['quantity']) === $stickerData['quantity']) {
+                    $discount = floatval($config['discount'] ?? 0);
+                    break;
+                }
+            }
+            $stickerData['discount'] = $discount;
+
+            $pricePerMm = floatval(get_option('gerfaut_sticker_price_per_mm', 0.50));
+            $surface = $stickerData['width'] * $stickerData['height'];
+            $unitPrice = round($surface * $pricePerMm * (1 - $discount / 100), 2);
+            $totalPrice = round($unitPrice * $stickerData['quantity'], 2);
+
+            $stickerData['price_per_mm'] = $pricePerMm;
+            $stickerData['unit_price'] = $unitPrice;
+            $stickerData['total_price'] = $totalPrice;
 
             $cart_item_data['gerfaut_sticker_data'] = $stickerData;
             $cart_item_data['unique_key'] = md5(microtime() . rand(0, 999999));
@@ -131,10 +161,34 @@ class Gerfaut_Companion_Sticker_Builder {
     public function display_sticker_cart_item_data($item_data, $cart_item) {
         if (!empty($cart_item['gerfaut_sticker_data'])) {
             $data = $cart_item['gerfaut_sticker_data'];
-            $item_data[] = array('key' => 'Sticker', 'value' => sprintf('Dimensions %s x %s mm, Qté %s', esc_html($data['width']), esc_html($data['height']), esc_html($data['quantity'])));
+            $item_data[] = array(
+                'key' => 'Sticker',
+                'value' => sprintf('Dimensions %s x %s mm, Qté %s', esc_html($data['width']), esc_html($data['height']), esc_html($data['quantity']))
+            );
             $item_data[] = array('key' => 'Seuil noir', 'value' => esc_html($data['threshold']));
+            if (!empty($data['unit_price'])) {
+                $item_data[] = array('key' => 'Prix unitaire', 'value' => wc_price($data['unit_price']));
+            }
+            if (!empty($data['total_price'])) {
+                $item_data[] = array('key' => 'Prix total', 'value' => wc_price($data['total_price']));
+            }
         }
         return $item_data;
+    }
+
+    public function apply_sticker_cart_price($cart) {
+        if (is_admin() && !defined('DOING_AJAX')) {
+            return;
+        }
+
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            if (!empty($cart_item['gerfaut_sticker_data']) && isset($cart_item['gerfaut_sticker_data']['unit_price'])) {
+                $unit_price = floatval($cart_item['gerfaut_sticker_data']['unit_price']);
+                if ($unit_price > 0) {
+                    $cart_item['data']->set_price($unit_price);
+                }
+            }
+        }
     }
 
     public function save_sticker_order_item_meta($item, $cart_item_key, $values, $order) {

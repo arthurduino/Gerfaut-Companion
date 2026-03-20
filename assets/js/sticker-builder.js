@@ -5,23 +5,35 @@
         alert(message);
     }
 
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
+    }
+
     function updatePreview($form) {
         var imageUrl = $form.find('input[name="sticker_image_url"]').val();
         var threshold = parseInt($form.find('input[name="sticker_threshold"]').val() || 128, 10);
         var dimen = parseFloat($form.find('input[name="sticker_dimen"]').val() || 62);
-        var orientation = $form.find('select[name="sticker_orientation"]').val();
-        var quantity = parseInt($form.find('select[name="sticker_quantity"]').val(), 10);
+        var orientation = $form.find('input[name="sticker_orientation"]').val() || 'portrait';
+        var quantity = parseInt($form.find('select[name="sticker_quantity"]').val(), 10) || 1;
+        var pricePerMm = parseFloat($form.data('price-per-mm') || 0.50);
+        var discount = parseFloat($form.find('select[name="sticker_quantity"] option:selected').data('discount') || 0);
 
-        if (orientation === 'portrait') {
-                    $form.find('.sticker-dimen-label').text('Hauteur (calculée à partir de l’image, largeur 62mm fixe)');
-                } else {
-                    $form.find('.sticker-dimen-label').text('Largeur (calculée à partir de l’image, hauteur 62mm fixe)');
-                }
+        $form.find('.gerfaut-segment-button').removeClass('active');
+        $form.find('.gerfaut-segment-button[data-value="' + orientation + '"]').addClass('active');
 
-                var fixed = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
-                $form.find('#sticker_dimen_text').text(dimen + ' mm');
+        var widthMm = orientation === 'portrait' ? 62 : dimen;
+        var heightMm = orientation === 'portrait' ? dimen : 62;
+        var surface = widthMm * heightMm;
+        var unitPrice = surface * pricePerMm * (1 - discount / 100);
+        var totalPrice = unitPrice * quantity;
+
+        $form.find('#sticker_width_text').text(widthMm);
+        $form.find('#sticker_height_text').text(heightMm);
+        $form.find('#sticker_dimen_text').text(dimen + ' mm');
         $form.find('.gerfaut-sticker-preview-quantity').text('Quantité : ' + quantity);
         $form.find('.gerfaut-sticker-preview-threshold').text('Seuil noir : ' + threshold);
+        $form.find('.gerfaut-sticker-preview-price').text('Prix total : ' + formatCurrency(totalPrice) + ' (Unité : ' + formatCurrency(unitPrice) + ')');
+        $form.find('input[name="sticker_price"]').val(totalPrice.toFixed(2));
 
         var $canvas = $form.find('.gerfaut-sticker-preview-canvas');
 
@@ -32,7 +44,7 @@
                 var cw = 320;
                 var ch = 320;
                 $canvas.attr({ width: cw, height: ch });
-                var ctx = $canvas[0].getContext('2d');
+                var ctx = $canvas[0].getContext('2d', { willReadFrequently: true });
                 ctx.clearRect(0, 0, cw, ch);
                 ctx.fillStyle = '#fff';
                 ctx.fillRect(0, 0, cw, ch);
@@ -63,8 +75,10 @@
                     dimen = (orientation === 'portrait') ? Math.max(10, Math.round(naturalH * target)) : Math.max(10, Math.round(naturalW * target));
                     $form.find('input[name="sticker_dimen"]').val(dimen);
                     $form.find('#sticker_dimen_text').text(dimen + ' mm');
-                    var fixed2 = (orientation === 'portrait') ? '62mm x ' + dimen + 'mm' : dimen + 'mm x 62mm';
-                    $form.find('.gerfaut-sticker-preview-size').text('Dimensions prévues : ' + fixed2 + ' (ajustées en fonction de l’image)');
+                    var widthMm = orientation === 'portrait' ? 62 : dimen;
+                    var heightMm = orientation === 'portrait' ? dimen : 62;
+                    $form.find('#sticker_width_text').text(widthMm);
+                    $form.find('#sticker_height_text').text(heightMm);
                 }
 
                 $canvas.show();
@@ -97,8 +111,23 @@
             data: data,
             contentType: false,
             processData: false,
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener('progress', function(event) {
+                    if (event.lengthComputable) {
+                        var percent = Math.round((event.loaded / event.total) * 100);
+                        var $progress = $form.find('.gerfaut-upload-progress span');
+                        $form.find('.gerfaut-upload-progress-bar').show();
+                        $progress.css('width', percent + '%');
+                        $form.find('.gerfaut-sticker-upload-status').text('Téléversement ' + percent + '%');
+                    }
+                }, false);
+                return xhr;
+            },
             success: function(response) {
                 uploadInProgress = false;
+                $form.find('.gerfaut-upload-progress-bar').hide();
+                $form.find('.gerfaut-upload-progress span').css('width', '0%');
                 if (response && response.success && response.data && response.data.url) {
                     $form.find('input[name="sticker_image_url"]').val(response.data.url);
                     updatePreview($form);
@@ -120,15 +149,32 @@
         $('.gerfaut-sticker-form').each(function() {
             var $form = $(this);
 
-            $form.on('change input', 'select, input[name="sticker_dimen"], input[name="sticker_threshold"]', function() {
-                var orientation = $form.find('select[name="sticker_orientation"]').val();
-                var $dimen = $form.find('input[name="sticker_dimen"]');
-                if (orientation === 'portrait') {
-                    $form.find('.sticker-dimen-label').text('Hauteur (mm, minimum 10, largeur 62mm fixe)');
-                } else {
-                    $form.find('.sticker-dimen-label').text('Largeur (mm, minimum 10, hauteur 62mm fixe)');
-                }
+            $form.on('change input', 'select[name="sticker_quantity"], input[name="sticker_threshold"]', function() {
                 updatePreview($form);
+            });
+
+            $form.on('click', '.gerfaut-segment-button', function(e) {
+                e.preventDefault();
+                var orientation = $(this).data('value');
+                $form.find('input[name="sticker_orientation"]').val(orientation);
+                updatePreview($form);
+            });
+
+            var $dropZone = $form.find('.gerfaut-drop-zone');
+            $dropZone.on('dragover', function(e) {
+                e.preventDefault();
+                $dropZone.addClass('dragging');
+            });
+            $dropZone.on('dragleave', function() {
+                $dropZone.removeClass('dragging');
+            });
+            $dropZone.on('drop', function(e) {
+                e.preventDefault();
+                $dropZone.removeClass('dragging');
+                var files = (e.originalEvent.dataTransfer || e.dataTransfer).files;
+                if (files && files[0]) {
+                    uploadImage(files[0], $form);
+                }
             });
 
             $form.on('change', 'input[name="sticker_file"]', function(event) {
@@ -136,13 +182,6 @@
                 if (file) {
                     uploadImage(file, $form);
                 }
-            });
-
-            $form.on('click', '.gerfaut-toggle-orientation', function(e) {
-                e.preventDefault();
-                var current = $form.find('select[name="sticker_orientation"]').val();
-                var next = current === 'portrait' ? 'landscape' : 'portrait';
-                $form.find('select[name="sticker_orientation"]').val(next).trigger('change');
             });
 
             $form.on('submit', function(e) {
@@ -159,24 +198,35 @@
                     return;
                 }
 
-                var orientation = $form.find('select[name="sticker_orientation"]').val();
+                var orientation = $form.find('input[name="sticker_orientation"]').val();
                 var dimen = parseFloat($form.find('input[name="sticker_dimen"]').val()) || 62;
                 if (dimen < 10) dimen = 10;
                 var quantity = parseInt($form.find('select[name="sticker_quantity"]').val(), 10);
                 var threshold = parseInt($form.find('input[name="sticker_threshold"]').val(), 10);
 
+                var pricePerMm = parseFloat($form.data('price-per-mm') || 0.50);
+                var widthMm = orientation === 'portrait' ? 62 : dimen;
+                var heightMm = orientation === 'portrait' ? dimen : 62;
+                var surface = widthMm * heightMm;
+                var discount = parseFloat($form.find('select[name="sticker_quantity"] option:selected').data('discount') || 0);
+                var unitPrice = parseFloat((surface * pricePerMm * (1 - discount / 100)).toFixed(2));
+                var totalPrice = parseFloat((unitPrice * quantity).toFixed(2));
+
                 var stickerData = {
                     image_url: imageUrl,
                     orientation: orientation,
-                    width: orientation === 'portrait' ? 62 : dimen,
-                    height: orientation === 'portrait' ? dimen : 62,
+                    width: widthMm,
+                    height: heightMm,
                     quantity: quantity,
-                    threshold: threshold
+                    threshold: threshold,
+                    discount: discount,
+                    unit_price: unitPrice,
+                    total_price: totalPrice
                 };
 
                 var payload = {
                     action: 'gerfaut_add_sticker_to_cart',
-                    product_id: parseInt($form.data('product-id'), 10) || 0,
+                    product_id: parseInt($form.find('input[name="product_id"]').val() || $form.data('product-id'), 10) || 0,
                     sticker_data: stickerData
                 };
 

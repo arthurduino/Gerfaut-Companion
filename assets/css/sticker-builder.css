@@ -1,103 +1,281 @@
-.gerfaut-sticker-form {
-    max-width: 960px;
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 16px;
-    border-radius: 6px;
+:root {
+    --background: #F9FAFB;
+    --card: #FFFFFF;
+    --text: #111827;
+    --muted: #6B7280;
+    --accent: #00B894;
+    --accent-dark: #019A75;
+    --border: #E5E7EB;
+    --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
+
+body .gerfaut-sticker-form {
+    max-width: 1000px;
+    background: var(--card);
+    border: none;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    font-family: 'Inter', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    margin: 16px auto;
+}
+
+body {
+    background: var(--background);
+}
+
 .gerfaut-sticker-builder-grid {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 18px;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 20px;
     align-items: start;
 }
-.gerfaut-sticker-preview-col, .gerfaut-sticker-options-col {
-    background: #fff;
+
+.gerfaut-sticker-preview-col,
+.gerfaut-sticker-options-col {
+    background: var(--card);
     padding: 18px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
 }
+
 .gerfaut-sticker-preview-col {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
+.gerfaut-sticker-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.gerfaut-sticker-hero {
+    width: 100%;
+    position: relative;
+    background: #F4F7FB;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .gerfaut-sticker-preview-canvas {
     width: 320px;
     height: 320px;
     max-width: 100%;
-    border: 1px solid #ccd0d7;
-    border-radius: 8px;
-    background: #fefefe;
+    border: 1px solid #D2D6DB;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #fafbfd, #f5f8fc);
     margin-bottom: 12px;
 }
-.gerfaut-sticker-form label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 4px;
+
+.gerfaut-sticker-dimensions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    font-weight: 700;
+    color: #1F2937;
+    font-size: 0.95rem;
 }
-.gerfaut-sticker-form input[type='number'], .gerfaut-sticker-form input[type='text'], .gerfaut-sticker-form select, .gerfaut-sticker-form input[type='url'] {
+
+.gerfaut-sticker-preview-status {
+    margin-top: 14px;
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    margin-bottom: 10px;
 }
-.gerfaut-sticker-form .gerfaut-sticker-preview {
-    border: 1px dashed #999;
-    padding: 10px;
-    margin-top: 12px;
-    text-align: center;
+
+.gerfaut-sticker-preview-status p {
+    margin: 2px 0;
+    font-size: 0.95rem;
+    color: #334155;
 }
-.gerfaut-sticker-form .gerfaut-sticker-preview img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 3px;
-    display: block;
-    margin: 0 auto 10px;
-}
-.gerfaut-sticker-form button[type='submit'] {
-    background: linear-gradient(135deg, #1f6fc2, #1b9bcc);
-    color: #fff;
-    border: 0;
-    border-radius: 7px;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: transform 0.15s ease, opacity 0.15s ease;
-    width: 100%;
+
+.gerfaut-sticker-preview-price {
+    color: var(--accent-dark);
     font-weight: 700;
 }
-.gerfaut-sticker-form button[type='submit']:hover {
-    transform: translateY(-1px);
-    opacity: 0.98;
-}
-.gerfaut-sticker-form .gerfaut-sticker-upload-status {
-    display: block;
+
+.gerfaut-step-title {
     margin-top: 8px;
-    font-size: 0.92em;
-    color: #4c4c4c;
+    margin-bottom: 10px;
+    color: #111827;
+    font-size: 1.05rem;
+    font-weight: 700;
 }
-.gerfaut-sticker-preview-meta {
+
+.gerfaut-drop-zone {
+    position: relative;
+    border: 2px dashed #CBD5E1;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    background: #F8FAFC;
+    color: #334155;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.gerfaut-drop-zone.dragging {
+    border-color: var(--accent);
+    background: #EBFDF3;
+}
+
+.gerfaut-drop-zone input[type="file"], .gerfaut-drop-zone .gerfaut-drop-input {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    margin-top: 6px;
-    padding: 8px 10px;
-    border-radius: 7px;
-    background: #f8faff;
-    border: 1px solid #d7e5ff;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
 }
-.gerfaut-sticker-preview-meta p {
-    margin: 4px 0;
+
+.gerfaut-drop-text {
+    margin: 0;
     font-size: 0.95rem;
-    color: #333;
+    color: #475569;
 }
-.gerfaut-sticker-options-col label {
+
+.gerfaut-upload-progress-bar {
     margin-top: 10px;
-    color: #1c1f26;
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
 }
-.gerfaut-sticker-options-col input[type='file'] {
+
+.gerfaut-upload-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    transition: width 0.25s ease;
+}
+
+.gerfaut-segmented-control {
+    display: inline-flex;
+    border: 1px solid #CBD5E1;
+    border-radius: 999px;
+    background: #fff;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.gerfaut-segment-button {
+    border: 0;
+    background: #fff;
+    color: #475569;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.gerfaut-segment-button:not(:last-child) {
+    border-right: 1px solid #E2E8F0;
+}
+
+.gerfaut-segment-button.active {
+    background: var(--accent);
+    color: #fff;
+}
+
+.gerfaut-control-row {
+    margin-bottom: 12px;
+}
+
+.gerfaut-control-row label {
+    display: block;
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.gerfaut-sticker-dimen-short {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.gerfaut-sticker-options-col label,
+.gerfaut-sticker-options-col select,
+.gerfaut-sticker-options-col input[type="range"],
+.gerfaut-sticker-options-col input[type="file"] {
     width: 100%;
 }
+
 .gerfaut-sticker-options-col select,
-.gerfaut-sticker-options-col input[type='range'] {
-    margin-bottom: 12px;
+.gerfaut-sticker-options-col input[type="range"] {
+    margin-bottom: 14px;
+}
+
+.gerfaut-sticker-options-col option {
+    font-size: 0.95rem;
+}
+
+.gerfaut-sticker-options-col input,
+.gerfaut-sticker-options-col select {
+    border-radius: 10px;
+    border: 1px solid #CBD5E1;
+    padding: 10px;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gerfaut-sticker-options-col input:focus,
+.gerfaut-sticker-options-col select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(0, 184, 148, 0.15);
+    outline: none;
+}
+
+.gerfaut-sticker-options-col input[type="range"] {
+    accent-color: var(--accent);
+    margin-top: 6px;
+}
+
+.gerfaut-sticker-options-col .button-primary,
+.gerfaut-sticker-options-col button[type="submit"] {
+    display: block;
+    width: 100%;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 12px rgba(0, 137, 102, 0.25);
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.gerfaut-sticker-options-col .button-primary:hover,
+.gerfaut-sticker-options-col button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 137, 102, 0.28);
+}
+
+.gerfaut-sticker-upload-status {
+    margin-top: 8px;
+    color: #0E7490;
+    font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+    .gerfaut-sticker-builder-grid {
+        grid-template-columns: 1fr;
+    }
+    .gerfaut-sticker-preview-col {
+        order: -1;
+    }
 }
