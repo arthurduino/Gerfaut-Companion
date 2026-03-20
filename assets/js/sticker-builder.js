@@ -29,11 +29,22 @@
             var img = new Image();
             img.crossOrigin = 'Anonymous';
             img.onload = function() {
-                var cw = Math.min(320, img.naturalWidth);
-                var ch = Math.min(320, img.naturalHeight);
+                var cw = 320;
+                var ch = 320;
                 $canvas.attr({ width: cw, height: ch });
                 var ctx = $canvas[0].getContext('2d');
-                ctx.drawImage(img, 0, 0, cw, ch);
+                ctx.clearRect(0, 0, cw, ch);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, cw, ch);
+
+                var naturalW = img.naturalWidth;
+                var naturalH = img.naturalHeight;
+                var ratio = Math.min(cw / naturalW, ch / naturalH);
+                var drawW = naturalW * ratio;
+                var drawH = naturalH * ratio;
+                var dx = (cw - drawW) / 2;
+                var dy = (ch - drawH) / 2;
+                ctx.drawImage(img, dx, dy, drawW, drawH);
 
                 var imgData = ctx.getImageData(0, 0, cw, ch);
                 var data = imgData.data;
@@ -47,8 +58,6 @@
                 }
                 ctx.putImageData(imgData, 0, 0);
 
-                var naturalW = img.naturalWidth;
-                var naturalH = img.naturalHeight;
                 var target = (orientation === 'portrait') ? 62 / naturalW : 62 / naturalH;
                 if (!isNaN(target) && isFinite(target) && target > 0) {
                     dimen = (orientation === 'portrait') ? Math.max(10, Math.round(naturalH * target)) : Math.max(10, Math.round(naturalW * target));

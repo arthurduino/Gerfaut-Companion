@@ -3,27 +3,27 @@
 # GitHub Release Creation Script
 # Creates a release on GitHub using the GitHub API
 
-VERSION="v1.3.20"
+VERSION="v1.3.21"
 REPO="arthurduino/Gerfaut-Companion"
-ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.20.zip"
+ZIP_FILE="/home/manager.gerfaut.ovh/public_html/gerfaut-companion-1.3.21.zip"
 
-RELEASE_NOTES="## ✨ Custom Stickers v1.03
+RELEASE_NOTES="## ✨ Custom Stickers v1.04
 
 ### Changements
-- Ajout validation nombre caract.` > seuil (format texte sticker)
-- Correction du calcul de prix par mm pour devinciations < 1
-- Mise à jour des titres admin et aides de saisie
+- Ajout option limite maximale (width/height) pour sécuriser l'upload
+- Amélioration des messages d'erreur via `wc_add_notice`
+- Nettoyage JS et suppression de code mort
 
 ### Avantages
-✅ Réduction des erreurs utilisateurs
-✅ Meilleurs retours de debug dans journal admin
-✅ Résilience accrues côté checkout
+✅ Meilleure protection UX 
+✅ Moins d'inputs invalides
+✅ Contrôle de qualité renforcé
 
 ### Compatibilité
 ✅ Compatible avec v1.3.x
 
 ### Notes
-- Toujours configurable via WooCommerce > Stickers Gerfaut
+- Ne modifie pas le comportement back-office.
 "
 
 echo "======================================================================"

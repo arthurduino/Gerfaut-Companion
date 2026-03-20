@@ -7,22 +7,29 @@
 }
 .gerfaut-sticker-builder-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
     align-items: start;
 }
 .gerfaut-sticker-preview-col, .gerfaut-sticker-options-col {
-    background: #fbfbfb;
-    padding: 12px;
-    border-radius: 6px;
+    background: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+.gerfaut-sticker-preview-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .gerfaut-sticker-preview-canvas {
-    width: 100%;
-    height: auto;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #fff;
-    margin-bottom: 10px;
+    width: 320px;
+    height: 320px;
+    max-width: 100%;
+    border: 1px solid #ccd0d7;
+    border-radius: 8px;
+    background: #fefefe;
+    margin-bottom: 12px;
 }
 .gerfaut-sticker-form label {
     display: block;
@@ -50,16 +57,47 @@
     margin: 0 auto 10px;
 }
 .gerfaut-sticker-form button[type='submit'] {
-    background: #2271b1;
+    background: linear-gradient(135deg, #1f6fc2, #1b9bcc);
     color: #fff;
     border: 0;
-    border-radius: 4px;
-    padding: 10px 14px;
+    border-radius: 7px;
+    padding: 12px 16px;
     cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    width: 100%;
+    font-weight: 700;
+}
+.gerfaut-sticker-form button[type='submit']:hover {
+    transform: translateY(-1px);
+    opacity: 0.98;
 }
 .gerfaut-sticker-form .gerfaut-sticker-upload-status {
     display: block;
+    margin-top: 8px;
+    font-size: 0.92em;
+    color: #4c4c4c;
+}
+.gerfaut-sticker-preview-meta {
+    width: 100%;
     margin-top: 6px;
-    font-size: 0.9em;
-    color: #555;
+    padding: 8px 10px;
+    border-radius: 7px;
+    background: #f8faff;
+    border: 1px solid #d7e5ff;
+}
+.gerfaut-sticker-preview-meta p {
+    margin: 4px 0;
+    font-size: 0.95rem;
+    color: #333;
+}
+.gerfaut-sticker-options-col label {
+    margin-top: 10px;
+    color: #1c1f26;
+}
+.gerfaut-sticker-options-col input[type='file'] {
+    width: 100%;
+}
+.gerfaut-sticker-options-col select,
+.gerfaut-sticker-options-col input[type='range'] {
+    margin-bottom: 12px;
 }
